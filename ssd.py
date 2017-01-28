@@ -8,10 +8,6 @@ import chainer.functions as F
 
 class SSD300(chainer.Chain):
 
-    """
-    SSD-300
-    """
-
     def __init__(self):
         super(SSD300, self).__init__(
             base=L.VGG16Layers(),
