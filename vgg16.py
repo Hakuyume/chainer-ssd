@@ -51,12 +51,11 @@ class VGG16(chainer.Chain):
 
         h = F.relu(self.conv4_1(h))
         h = F.relu(self.conv4_2(h))
-        h_conv4 = self.conv4_3(h)
-        h = F.relu(h_conv4)
-        h = F.max_pooling_2d(h, 2, stride=2)
+        h_conv4 = F.relu(self.conv4_3(h))
+        h = F.max_pooling_2d(h_conv4, 2, stride=2)
 
         h = F.relu(self.conv5_1(h))
         h = F.relu(self.conv5_2(h))
-        h_conv5 = self.conv5_3(h)
+        h_conv5 = F.relu(self.conv5_3(h))
 
         return h_conv4, h_conv5
