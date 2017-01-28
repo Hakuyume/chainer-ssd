@@ -7,15 +7,15 @@ import chainer.links as L
 import chainer.functions as F
 
 
-class VGGNet(chainer.Chain):
+class VGG16(chainer.Chain):
 
     """
-    VGGNet
+    VGG-16
     - It takes (224, 224, 3) sized image as imput
     """
 
     def __init__(self):
-        super(VGGNet, self).__init__(
+        super(VGG16, self).__init__(
             conv1_1=L.Convolution2D(3, 64, 3, stride=1, pad=1),
             conv1_2=L.Convolution2D(64, 64, 3, stride=1, pad=1),
 
@@ -75,4 +75,3 @@ class VGGNet(chainer.Chain):
         else:
             self.pred = F.softmax(h)
             return self.pred
-
