@@ -6,9 +6,32 @@ import chainer.links as L
 import chainer.functions as F
 
 
+class MultiBoxHead(chainer.Chain):
+
+    def __init__(self, n_class):
+        super(MultiBoxHead, self).__init__(
+            loc=chainer.ChainList(),
+            conf=chainer.ChainList(),
+        )
+
+        aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
+        for aspect_ratio in aspect_ratios:
+            n_anchor = (len(aspect_ratio) + 1) * 2
+            self.loc.add_link(L.Convolution2D(
+                None, n_anchor * 4, 3, stride=1, pad=1)
+            )
+            self.conf.add_link(L.Convolution2D(
+                None, n_anchor * n_class, 3, stride=1, pad=1)
+            )
+
+    def __call__(self, xs):
+        for i, x in enumerate(xs):
+            yield self.loc[i](x), self.conf[i](x)
+
+
 class SSD300(chainer.Chain):
 
-    def __init__(self):
+    def __init__(self, n_class):
         super(SSD300, self).__init__(
             base=L.VGG16Layers(),
 
@@ -26,28 +49,36 @@ class SSD300(chainer.Chain):
 
             conv11_1=L.Convolution2D(None, 128, 1, stride=1),
             conv11_2=L.Convolution2D(None, 256, 3, stride=1),
+
+            multibox=MultiBoxHead(n_class),
         )
         self.train = False
 
     def __call__(self, x):
-        layers = ['conv4_2', 'conv5_2']
-        h = self.base(x, layers=layers)
-        h_conv4 = h['conv4_2']
-        h_conv5 = h['conv5_2']
+        hs = list()
 
-        h = F.relu(self.conv6(h_conv5))
-        h_conv7 = F.relu(self.conv7(h))
+        layers = self.base(x, layers=['conv4_2', 'conv5_2'])
+        hs.append(layers['conv4_2'])
+        h = layers['conv5_2']
+
+        h = F.relu(self.conv6(h))
+        h = F.relu(self.conv7(h))
+        hs.append(h)
 
         h = F.relu(self.conv8_1(h))
-        h_conv8 = F.relu(self.conv8_2(h))
+        h = F.relu(self.conv8_2(h))
+        hs.append(h)
 
-        h = F.relu(self.conv9_1(h_conv8))
-        h_conv9 = F.relu(self.conv9_2(h))
+        h = F.relu(self.conv9_1(h))
+        h = F.relu(self.conv9_2(h))
+        hs.append(h)
 
-        h = F.relu(self.conv10_1(h_conv9))
-        h_conv10 = F.relu(self.conv10_2(h))
+        h = F.relu(self.conv10_1(h))
+        h = F.relu(self.conv10_2(h))
+        hs.append(h)
 
-        h = F.relu(self.conv11_1(h_conv10))
-        h_conv11 = F.relu(self.conv11_2(h))
+        h = F.relu(self.conv11_1(h))
+        h = F.relu(self.conv11_2(h))
+        hs.append(h)
 
-        return h_conv4, h_conv7, h_conv8, h_conv9, h_conv10, h_conv11
+        return self.multibox(hs)
