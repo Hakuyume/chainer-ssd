@@ -5,8 +5,6 @@ import chainer
 import chainer.links as L
 import chainer.functions as F
 
-import vgg16
-
 
 class SSD300(chainer.Chain):
 
@@ -16,7 +14,7 @@ class SSD300(chainer.Chain):
 
     def __init__(self):
         super(SSD300, self).__init__(
-            conv_base=vgg16.VGG16(),
+            base=L.VGG16Layers(),
 
             conv6=L.Convolution2D(None, 1024, 3, stride=1, pad=1),
             conv7=L.Convolution2D(None, 1024, 1, stride=1),
@@ -36,7 +34,10 @@ class SSD300(chainer.Chain):
         self.train = False
 
     def __call__(self, x):
-        h_conv4, h_conv5 = self.conv_base(x)
+        layers = ['conv4_2', 'conv5_2']
+        h = self.base(x, layers=layers)
+        h_conv4 = h['conv4_2']
+        h_conv5 = h['conv5_2']
 
         h = F.relu(self.conv6(h_conv5))
         h_conv7 = F.relu(self.conv7(h))
