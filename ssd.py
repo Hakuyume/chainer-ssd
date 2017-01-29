@@ -7,6 +7,12 @@ import chainer.functions as F
 from multibox import MultiBox
 
 
+def normalize_2d(x, eps=1e-05):
+    norm = F.sqrt(F.sum(F.square(x), axis=1)) + eps
+    norm = F.broadcast_to(norm[:, None], x.shape)
+    return x / norm
+
+
 class SSD300(chainer.Chain):
 
     def __init__(self, n_class):
@@ -39,7 +45,7 @@ class SSD300(chainer.Chain):
         hs = list()
 
         layers = self.base(x, layers=['conv4_3', 'conv5_3'])
-        hs.append(layers['conv4_3'])
+        hs.append(normalize_2d(layers['conv4_3']) * 20)
         h = layers['conv5_3']
         h = F.max_pooling_2d(h, 3, stride=1, pad=1)
 
