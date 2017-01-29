@@ -19,11 +19,9 @@ class MultiBox(chainer.Chain):
         for aspect_ratio in aspect_ratios:
             n_anchor = (len(aspect_ratio) + 1) * 2
             self.loc.add_link(L.Convolution2D(
-                None, n_anchor * 4, 3, stride=1, pad=1)
-            )
+                None, n_anchor * 4, 3, stride=1, pad=1))
             self.conf.add_link(L.Convolution2D(
-                None, n_anchor * (self.n_class + 1), 3, stride=1, pad=1)
-            )
+                None, n_anchor * (self.n_class + 1), 3, stride=1, pad=1))
 
     def __call__(self, xs):
         hs_loc = list()
