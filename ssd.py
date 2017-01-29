@@ -21,7 +21,7 @@ class MultiBoxHead(chainer.Chain):
                 None, n_anchor * 4, 3, stride=1, pad=1)
             )
             self.conf.add_link(L.Convolution2D(
-                None, n_anchor * n_class, 3, stride=1, pad=1)
+                None, n_anchor * (n_class + 1), 3, stride=1, pad=1)
             )
 
     def __call__(self, xs):
@@ -57,9 +57,10 @@ class SSD300(chainer.Chain):
     def __call__(self, x):
         hs = list()
 
-        layers = self.base(x, layers=['conv4_2', 'conv5_2'])
-        hs.append(layers['conv4_2'])
-        h = layers['conv5_2']
+        layers = self.base(x, layers=['conv4_3', 'conv5_3'])
+        hs.append(layers['conv4_3'])
+        h = layers['conv5_3']
+        h = F.max_pooling_2d(h, 3, stride=1, pad=1)
 
         h = F.relu(self.conv6(h))
         h = F.relu(self.conv7(h))
