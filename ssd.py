@@ -14,6 +14,8 @@ class MultiBoxHead(chainer.Chain):
             conf=chainer.ChainList(),
         )
 
+        self.n_class = n_class
+
         aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
         for aspect_ratio in aspect_ratios:
             n_anchor = (len(aspect_ratio) + 1) * 2
@@ -21,12 +23,27 @@ class MultiBoxHead(chainer.Chain):
                 None, n_anchor * 4, 3, stride=1, pad=1)
             )
             self.conf.add_link(L.Convolution2D(
-                None, n_anchor * (n_class + 1), 3, stride=1, pad=1)
+                None, n_anchor * (self.n_class + 1), 3, stride=1, pad=1)
             )
 
     def __call__(self, xs):
+        hs_loc = list()
+        hs_conf = list()
+
         for i, x in enumerate(xs):
-            yield self.loc[i](x), self.conf[i](x)
+            h_loc = self.loc[i](x)
+            h_loc = F.transpose(h_loc, (0, 2, 3, 1))
+            h_loc = F.reshape(h_loc, (h_loc.shape[0], -1, 4))
+            hs_loc.append(h_loc)
+
+            h_conf = self.conf[i](x)
+            h_conf = F.transpose(h_conf, (0, 2, 3, 1))
+            h_conf = F.reshape(h_conf, (h_conf.shape[0], -1, self.n_class + 1))
+            hs_conf.append(h_conf)
+
+        hs_loc = F.concat(hs_loc, axis=1)
+        hs_conf = F.concat(hs_conf, axis=1)
+        return hs_loc, hs_conf
 
 
 class SSD300(chainer.Chain):
