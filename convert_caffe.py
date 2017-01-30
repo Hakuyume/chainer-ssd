@@ -17,7 +17,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     caffe_model = CaffeFunction(args.source)
-    model = ssd.SSD300(20)
+    model = ssd.SSD300(n_class=20, n_anchors=(4, 6, 6, 6, 4, 4))
 
     model.base.conv1_1.copyparams(caffe_model.conv1_1)
     model.base.conv1_2.copyparams(caffe_model.conv1_2)
