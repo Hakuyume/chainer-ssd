@@ -37,8 +37,8 @@ if __name__ == '__main__':
     serializers.load_npz(args.model, model)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
-    src = cv2.resize(src, (size, size))
-    x = src.astype(np.float32)
+
+    x = cv2.resize(src, (size, size)).astype(np.float32)
     x -= (103.939, 116.779, 123.68)
     x = x.transpose(2, 0, 1)
     x = x[np.newaxis]
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     img = src.copy()
     selected = set()
     for i in conf.max(axis=1).argsort()[:-4:-1]:
-        box = Rect.LTRB(*loc[i])
+        box = Rect.LTRB(*loc[i]).scale(*img.shape[:2][::-1])
         if len(selected) > 0:
             iou = max(box.iou(s) for s in selected)
             if iou > 0.45:

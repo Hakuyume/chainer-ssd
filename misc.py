@@ -5,7 +5,6 @@ import numpy as np
 class LocEncoder:
 
     def __init__(self, size, n_scale, aspect_ratios, variance, grids):
-        self.size = size
         self.variance = variance
 
         min_ratio, max_ratio = 20, 90
@@ -35,7 +34,7 @@ class LocEncoder:
         self.boxes = np.array(boxes)
 
     def decode(self, loc):
-        boxes = self.boxes * self.size
+        boxes = self.boxes
         boxes[:, :2] += loc[:, :2] * self.variance[0] * boxes[:, 2:]
         boxes[:, 2:] *= np.exp(loc[:, 2:] * self.variance[1])
         boxes[:, :2] -= boxes[:, 2:] / 2

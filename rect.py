@@ -53,6 +53,15 @@ class Rect(tuple):
         else:
             return None
 
+    def scale(self, kx, ky=None):
+        if ky is None:
+            ky = kx
+        return __class__.LTRB(
+            self.left() * kx,
+            self.top() * ky,
+            self.right() * kx,
+            self.bottom() * ky)
+
     def area(self):
         return self.width() * self.height()
 
