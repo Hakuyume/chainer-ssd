@@ -12,6 +12,8 @@ import chainer.functions as F
 from chainer import serializers
 
 from ssd import SSD300
+import voc
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 
     img = src.copy()
     for i in conf.max(axis=1).argsort()[:-4:-1]:
-        print(conf[i].argmax(), conf[i].max())
+        print(voc.names[conf[i].argmax()], conf[i].max())
 
         box = boxes[i] * 300
         box[:2] *= 1 + loc[i][:2] * variance[0]
