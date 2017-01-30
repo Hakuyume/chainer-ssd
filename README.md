@@ -11,7 +11,7 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
 ## Usage
 ### Testing
-#### 1\. Download pre-traind Caffe model from (https://github.com/weiliu89/caffe/tree/ssd#models)
+#### 1\. Download pre-traind Caffe model from https://github.com/weiliu89/caffe/tree/ssd#models
 ```
 curl -LO http://www.cs.unc.edu/%7Ewliu/projects/SSD/models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
