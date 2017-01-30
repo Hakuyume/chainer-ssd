@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     img = src.copy()
     selected = set()
-    for i in conf.max(axis=1).argsort()[:-4:-1]:
+    for i in conf.max(axis=1).argsort()[::-1]:
         box = Rect.LTRB(*loc[i]).scale(*img.shape[:2][::-1])
         if len(selected) > 0:
             iou = max(box.iou(s) for s in selected)
