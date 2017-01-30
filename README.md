@@ -11,18 +11,16 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
 ## Usage
 ### Testing
-1. Download pre-traind Caffe model from (https://github.com/weiliu89/caffe/tree/ssd#models)
+#### 1\. Download pre-traind Caffe model from (https://github.com/weiliu89/caffe/tree/ssd#models)
 ```
 curl -LO http://www.cs.unc.edu/%7Ewliu/projects/SSD/models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ```
-
-1. Convert weights
+#### 2\. Convert weights
 ```
 ./convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
 ```
-
-1. Predict
+#### 3\. Predict
 ```
 ./predict.py ssd300.npz <image.jpg>
 ```
