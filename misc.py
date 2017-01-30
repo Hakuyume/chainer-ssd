@@ -36,7 +36,7 @@ class LocEncoder:
 
     def decode(self, loc):
         boxes = self.boxes * self.size
-        boxes[:, :2] *= 1 + loc[:, :2] * self.variance[0]
+        boxes[:, :2] += loc[:, :2] * self.variance[0] * boxes[:, 2:]
         boxes[:, 2:] *= np.exp(loc[:, 2:] * self.variance[1])
         boxes[:, :2] -= boxes[:, 2:] / 2
         boxes[:, 2:] += boxes[:, :2]
