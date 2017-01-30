@@ -21,7 +21,6 @@ if __name__ == '__main__':
 
     size = 300
     grids = (38, 19, 10, 5, 3, 1)
-    steps = (8, 16, 32, 64, 100, 300)
     n_scale = 6
     min_ratio, max_ratio = 20, 90
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
