@@ -76,7 +76,7 @@ if __name__ == '__main__':
     for i in conf.max(axis=1).argsort()[:-4:-1]:
         print(voc.names[conf[i].argmax()], conf[i].max())
 
-        box = boxes[i] * 300
+        box = boxes[i] * size
         box[:2] *= 1 + loc[i][:2] * variance[0]
         box[2:] *= np.exp(loc[i][2:] * variance[1])
         cv2.rectangle(
