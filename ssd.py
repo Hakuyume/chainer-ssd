@@ -15,7 +15,7 @@ def normalize_2d(x, eps=1e-05):
 
 class SSD300(chainer.Chain):
 
-    def __init__(self, n_class):
+    def __init__(self, n_class, n_anchors):
         super(SSD300, self).__init__(
             base=L.VGG16Layers(),
 
@@ -35,9 +35,7 @@ class SSD300(chainer.Chain):
             conv11_1=L.Convolution2D(None, 128, 1, stride=1),
             conv11_2=L.Convolution2D(None, 256, 3, stride=1),
 
-            multibox=MultiBox(
-                n_class,
-                aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)))
+            multibox=MultiBox(n_class, n_anchors=n_anchors),
         )
         self.train = False
 
