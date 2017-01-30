@@ -24,3 +24,4 @@ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ```
 ./predict.py ssd300.npz <image.jpg>
 ```
+![result](result.jpg "result")
