@@ -25,3 +25,7 @@ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ./predict.py ssd300.npz <image.jpg>
 ```
 ![result](result.jpg "result")
+
+## References
++ Liu, Wei, et al. "SSD: Single shot multibox detector." ECCV2016.
++ [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
