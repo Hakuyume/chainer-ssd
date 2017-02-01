@@ -11,7 +11,7 @@ from chainer import serializers
 
 from ssd import SSD300
 from rect import Rect
-from misc import LocEncoder
+from loc import LocEncoder
 import voc
 
 
