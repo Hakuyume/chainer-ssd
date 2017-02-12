@@ -103,7 +103,7 @@ class MultiBoxEncoder:
             self.variance[1]))
 
         conf = 1 + classes[gt_idx]
-        conf[(iou >= threshold).any(axis=1)] = 0
+        conf[(iou < threshold).all(axis=1)] = 0
 
         return loc, conf
 
