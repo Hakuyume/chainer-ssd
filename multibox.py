@@ -80,11 +80,11 @@ class MultiBoxEncoder:
         return tuple((len(ar) + 1) * 2 for ar in self.aspect_ratios)
 
     def decode(self, loc, conf):
-        loc = np.hstack((
+        boxes = np.hstack((
             self.default_boxes[:, :2] +
             loc[:, :2] * self.variance[0] * self.default_boxes[:, 2:],
             self.default_boxes[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
         conf = np.exp(conf)
         conf /= conf.sum(axis=1)[:, np.newaxis]
 
-        return loc, conf
+        return boxes, conf

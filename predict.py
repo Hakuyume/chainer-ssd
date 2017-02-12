@@ -40,13 +40,13 @@ if __name__ == '__main__':
     x = x[np.newaxis]
 
     loc, conf = model(x)
-    loc, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
+    boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
     conf = conf[:, 1:]
 
     img = src.copy()
     selected = set()
     for i in conf.max(axis=1).argsort()[::-1]:
-        box = Rect.XYWH(*loc[i]).scale(*img.shape[:2][::-1])
+        box = Rect.XYWH(*boxes[i]).scale(*img.shape[:2][::-1])
         if len(selected) > 0:
             iou = max(box.iou(s) for s in selected)
             if iou > 0.45:
