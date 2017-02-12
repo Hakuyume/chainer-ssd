@@ -18,11 +18,11 @@ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ```
 #### 2\. Convert weights
 ```
-./convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
+python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
 ```
 #### 3\. Predict
 ```
-./predict.py ssd300.npz image.jpg
+python3 predict.py ssd300.npz image.jpg
 ```
 ![result](result.jpg "result")
 
