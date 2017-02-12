@@ -90,7 +90,7 @@ class MultiBoxEncoder:
             boxes[:, :2] + boxes[:, 2:] / 2)
 
         area_i = np.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
-        area_defaultboxes = np.prod(self.defaule_boxes[:, 2:], axis=1)
+        area_defaultboxes = np.prod(self.default_boxes[:, 2:], axis=1)
         area_boxes = np.prod(boxes[:, 2:], axis=1)
         iou = area_i / (area_defaultboxes[:, np.newaxis] + area_boxes - area_i)
 
