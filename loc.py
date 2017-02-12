@@ -31,12 +31,10 @@ class LocEncoder:
                 for ar in aspect_ratios[k]:
                     boxes.append((cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     boxes.append((cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
-        self.boxes = np.array(boxes)
+        self.default_boxes = np.array(boxes)
 
     def decode(self, loc):
-        boxes = self.boxes
-        boxes[:, :2] += loc[:, :2] * self.variance[0] * boxes[:, 2:]
-        boxes[:, 2:] *= np.exp(loc[:, 2:] * self.variance[1])
-        boxes[:, :2] -= boxes[:, 2:] / 2
-        boxes[:, 2:] += boxes[:, :2]
-        return boxes
+        return np.hstack((
+            self.default_boxes[:, :2] +
+            loc[:, :2] * self.variance[0] * self.default_boxes[:, 2:],
+            self.default_boxes[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
