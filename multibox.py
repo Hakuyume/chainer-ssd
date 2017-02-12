@@ -79,6 +79,34 @@ class MultiBoxEncoder:
     def n_anchors(self):
         return tuple((len(ar) + 1) * 2 for ar in self.aspect_ratios)
 
+    def encode(self, boxes, classes, threshold=0.5):
+        lt = np.maximum(
+            (self.default_boxes[:, :2] -
+             self.default_boxes[:, 2:] / 2)[:, np.newaxis],
+            boxes[:, :2] - boxes[:, 2:] / 2)
+        rb = np.minimum(
+            (self.default_boxes[:, :2] +
+             self.default_boxes[:, 2:] / 2)[:, np.newaxis],
+            boxes[:, :2] + boxes[:, 2:] / 2)
+
+        area_i = np.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
+        area_defaultboxes = np.prod(self.defaule_boxes[:, 2:], axis=1)
+        area_boxes = np.prod(boxes[:, 2:], axis=1)
+        iou = area_i / (area_defaultboxes[:, np.newaxis] + area_boxes - area_i)
+
+        gt_idx = iou.argmax(axis=1)
+
+        loc = np.hstack((
+            (boxes[gt_idx][:, :2] - self.default_boxes[:, :2]) /
+            (self.variance[0] * self.default_boxes[:, 2:]),
+            np.log(boxes[gt_idx][:, 2:] / self.default_boxes[:, 2:]) /
+            self.variance[1]))
+
+        conf = 1 + classes[gt_idx]
+        conf[(iou >= threshold).any(axis=1)] = 0
+
+        return loc, conf
+
     def decode(self, loc, conf):
         boxes = np.hstack((
             self.default_boxes[:, :2] +
