@@ -105,7 +105,7 @@ class MultiBoxEncoder:
         conf = 1 + classes[gt_idx]
         conf[(iou < threshold).all(axis=1)] = 0
 
-        return loc, conf
+        return loc.astype(np.float32), conf.astype(np.int32)
 
     def decode(self, loc, conf):
         boxes = np.hstack((
