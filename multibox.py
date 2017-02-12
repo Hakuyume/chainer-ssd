@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import chainer
 import chainer.links as L
 import chainer.functions as F
@@ -8,7 +6,7 @@ import chainer.functions as F
 class MultiBox(chainer.Chain):
 
     def __init__(self, n_class, n_anchors):
-        super(MultiBox, self).__init__(
+        super().__init__(
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )

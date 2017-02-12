@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import chainer
 import chainer.links as L
 import chainer.functions as F
@@ -16,7 +14,7 @@ def normalize_2d(x, eps=1e-05):
 class SSD300(chainer.Chain):
 
     def __init__(self, n_class, n_anchors):
-        super(SSD300, self).__init__(
+        super().__init__(
             base=L.VGG16Layers(),
 
             conv6=L.DilatedConvolution2D(
