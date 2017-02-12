@@ -22,7 +22,6 @@ if __name__ == '__main__':
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
 
     multibox_encoder = MultiBoxEncoder(
-        size,
         n_scale=6,
         variance=(0.1, 0.2),
         grids=(38, 19, 10, 5, 3, 1),

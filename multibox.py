@@ -44,9 +44,10 @@ class MultiBox(chainer.Chain):
 
 class MultiBoxEncoder:
 
-    def __init__(self, size, n_scale, aspect_ratios, variance, grids):
+    def __init__(self, n_scale, aspect_ratios, variance, grids):
         self.variance = variance
 
+        size = 300
         min_ratio, max_ratio = 20, 90
         step = int((max_ratio - min_ratio) / (n_scale - 2))
         min_sizes = [size * 10 // 100]
