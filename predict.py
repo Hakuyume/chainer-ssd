@@ -7,8 +7,8 @@ import numpy as np
 from chainer import serializers
 
 from ssd import SSD300
+from multibox import MultiBoxEncoder
 from rect import Rect
-from loc import LocEncoder
 import voc
 
 
@@ -21,7 +21,7 @@ if __name__ == '__main__':
     size = 300
     aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
 
-    loc_encoder = LocEncoder(
+    multibox_encoder = MultiBoxEncoder(
         size,
         n_scale=6,
         variance=(0.1, 0.2),
@@ -41,9 +41,7 @@ if __name__ == '__main__':
     x = x[np.newaxis]
 
     loc, conf = model(x)
-    loc = loc_encoder.decode(loc.data[0])
-    conf = np.exp(conf.data[0])
-    conf /= conf.sum(axis=1)[:, np.newaxis]
+    loc, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
     conf = conf[:, 1:]
 
     img = src.copy()
