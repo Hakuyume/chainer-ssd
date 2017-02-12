@@ -45,6 +45,7 @@ class MultiBox(chainer.Chain):
 class MultiBoxEncoder:
 
     def __init__(self, n_scale, aspect_ratios, variance, grids):
+        self.aspect_ratios = aspect_ratios
         self.variance = variance
 
         size = 300
@@ -69,10 +70,14 @@ class MultiBoxEncoder:
                 boxes.append((cx, cy, s, s))
 
                 s = min_sizes[k] / size
-                for ar in aspect_ratios[k]:
+                for ar in self.aspect_ratios[k]:
                     boxes.append((cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))
                     boxes.append((cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
         self.default_boxes = np.array(boxes)
+
+    @property
+    def n_anchors(self):
+        return tuple((len(ar) + 1) * 2 for ar in self.aspect_ratios)
 
     def decode(self, loc, conf):
         loc = np.hstack((

@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     model = SSD300(
         n_class=20,
-        n_anchors=((len(ar) + 1) * 2 for ar in aspect_ratios))
+        n_anchors=multibox_encoder.n_anchors)
     serializers.load_npz(args.model, model)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
