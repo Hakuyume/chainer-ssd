@@ -2,7 +2,6 @@
 
 import argparse
 
-import chainer
 from chainer import serializers
 from chainer.links.caffe import CaffeFunction
 

@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Rect(tuple):
     __slots__ = list()
 
@@ -8,17 +5,17 @@ class Rect(tuple):
         return super().__new__(cls, rect)
 
     def LTRB(left, top, right, bottom):
-        return __class__((left, top, right, bottom))
+        return Rect((left, top, right, bottom))
 
     def LTWH(left, top, width, height):
-        return __class__((
+        return Rect((
             left,
             top,
             left + width - 1,
             top + height - 1))
 
     def XYWH(center_x, center_y, width, height):
-        return __class__((
+        return Rect((
             center_x - width / 2,
             center_y - height / 2,
             center_x + width / 2,
@@ -49,14 +46,14 @@ class Rect(tuple):
         bottom = min(self.bottom(), other.bottom())
 
         if left <= right and top <= bottom:
-            return __class__.LTRB(left, top, right, bottom)
+            return Rect.LTRB(left, top, right, bottom)
         else:
             return None
 
     def scale(self, kx, ky=None):
         if ky is None:
             ky = kx
-        return __class__.LTRB(
+        return Rect.LTRB(
             self.left() * kx,
             self.top() * ky,
             self.right() * kx,
@@ -69,4 +66,5 @@ class Rect(tuple):
         intersect = self & other
         if intersect is None:
             return 0
-        return intersect.area() / (self.area() + other.area() - intersect.area())
+        return intersect.area() \
+            / (self.area() + other.area() - intersect.area())
