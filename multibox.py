@@ -66,9 +66,17 @@ class MultiBox(chainer.Chain):
                 F.flatten(t_conf)),
             t_conf.shape)
 
-        neg = ~pos
-        hard_neg = (-loss_conf.data * neg).argsort(axis=1).argsort(axis=1) \
-            < n_pos[:, np.newaxis] * 3
+        if xp is np:
+            np_loss_conf = loss_conf.data.copy()
+            np_n_pos = n_pos
+        else:
+            np_loss_conf = loss_conf.data.to_cpu()
+            np_n_pos = n_pos.to_cpu()
+        np_loss_conf[pos] = 0
+        np_loss_conf.sort(axis=1)
+        threshold = np_loss_conf[np.arange(len(np_n_pos)), -np_n_pos * 3]
+
+        hard_neg = loss_conf.data > xp.array(threshold)
         loss_conf = F.where(
             xp.logical_or(pos, hard_neg),
             loss_conf,
