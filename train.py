@@ -67,6 +67,7 @@ if __name__ == '__main__':
     parser.add_argument('--root')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--loaderjob', type=int, default=2)
+    parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
     args = parser.parse_args()
 
@@ -82,6 +83,9 @@ if __name__ == '__main__':
     model = SSD300(
         n_class=20,
         n_anchors=multibox_encoder.n_anchors)
+    if args.gpu >= 0:
+        chainer.cuda.get_device(args.gpu).use()
+        model.to_gpu()
 
     train = VOCDataset(args.root, size, multibox_encoder)
 
