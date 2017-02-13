@@ -48,7 +48,7 @@ if __name__ == '__main__':
     optimizer.setup(model)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (1000, 'iteration'), args.out)
+    trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
 
     snapshot_interval = 100, 'iteration'
     log_interval = 10, 'iteration'
