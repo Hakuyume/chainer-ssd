@@ -25,13 +25,12 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     size = 300
-    aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
 
     multibox_encoder = MultiBoxEncoder(
         n_scale=6,
         variance=(0.1, 0.2),
         grids=(38, 19, 10, 5, 3, 1),
-        aspect_ratios=aspect_ratios)
+        aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)))
 
     model = SSD300(
         n_class=20,
