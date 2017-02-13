@@ -50,18 +50,17 @@ class MultiBox(chainer.Chain):
 
             loss_loc = F.reshape(
                 F.huber_loss(
-                    F.reshape(hs_loc, (hs_loc.size // 4, 4)),
-                    F.reshape(loc, (loc.size // 4, 4)),
+                    F.reshape(hs_loc, (-1, 4)),
+                    F.reshape(loc, (-1, 4)),
                     1),
                 conf.shape)
             mask_loc = conf > 0
             loss_loc = F.where(
                 mask_loc, loss_loc, xp.zeros(conf.shape, dtype=np.float32))
 
-            dim = self.n_class + 1
             loss_conf = F.logsumexp(hs_conf, axis=2) - F.reshape(
                 F.select_item(
-                    F.reshape(hs_conf, (hs_conf.size // dim, dim)),
+                    F.reshape(hs_conf, (-1, self.n_class + 1)),
                     conf.flatten()),
                 conf.shape)
 
