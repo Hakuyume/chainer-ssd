@@ -44,8 +44,8 @@ if __name__ == '__main__':
         train, args.batchsize, n_processes=args.loaderjob)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(0.0005))
     optimizer.setup(model)
+    optimizer.add_hook(chainer.optimizer.WeightDecay(0.0005))
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
