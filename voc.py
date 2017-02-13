@@ -48,14 +48,10 @@ class VOCDataset(chainer.dataset.DatasetMixin):
         return len(self.images)
 
     def get_example(self, i):
-        x = cv2.imread(
+        image = cv2.imread(
             os.path.join(
                 self.images[i][0], 'JPEGImages', self.images[i][1] + '.jpg'),
-            cv2.IMREAD_COLOR)
-        h, w, _ = x.shape
-        x = cv2.resize(x, (self.size, self.size)).astype(np.float32)
-        x -= (103.939, 116.779, 123.68)
-        x = x.transpose(2, 0, 1)
+            cv2.IMREAD_COLOR).astype(np.float32)
 
         boxes = list()
         classes = list()
@@ -70,12 +66,20 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             xmax = float(bndbox.find('xmax').text)
             ymax = float(bndbox.find('ymax').text)
             boxes.append((
-                (xmin + xmax) / (2 * w),
-                (ymin + ymax) / (2 * h),
-                (xmax - xmin) / w,
-                (ymax - ymin) / h))
+                (xmin + xmax) / 2,
+                (ymin + ymax) / 2,
+                xmax - xmin,
+                ymax - ymin))
             classes.append(names.index(child.find('name').text))
-        loc, conf = self.encoder.encode(
-            np.array(boxes), np.array(classes))
+        boxes = np.array(boxes)
+        classes = np.array(classes)
 
-        return x, loc, conf
+        h, w, _ = image.shape
+        image = cv2.resize(image, (self.size, self.size))
+        image -= (103.939, 116.779, 123.68)
+        image = image.transpose(2, 0, 1)
+        boxes[:, 0::2] /= w
+        boxes[:, 1::2] /= h
+        loc, conf = self.encoder.encode(boxes, classes)
+
+        return image, loc, conf
