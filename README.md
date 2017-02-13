@@ -30,7 +30,7 @@ python3 predict.py ssd300.npz image.jpg
 ### Training (on going)
 #### 1\. Download VOC2007 dataset
 ```
-curl -LO wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
 tar xf VOCtrainval_06-Nov-2007.tar
 ```
 
