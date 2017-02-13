@@ -44,7 +44,7 @@ class MultiBox(chainer.Chain):
         if loc is None or conf is None:
             return hs_loc, hs_conf
         else:
-            xp = cuda.get_array_module(xs[0])
+            xp = cuda.get_array_module(xs[0].data)
 
             loss_loc = F.reshape(
                 F.huber_loss(
@@ -52,21 +52,22 @@ class MultiBox(chainer.Chain):
                     F.reshape(loc, (-1, 4)),
                     1),
                 conf.shape)
-            mask_loc = conf > 0
             loss_loc = F.where(
-                mask_loc, loss_loc, xp.zeros(conf.shape, dtype=np.float32))
+                conf.data > 0,
+                loss_loc,
+                xp.zeros_like(loss_loc.data))
 
             loss_conf = F.logsumexp(hs_conf, axis=2) - F.reshape(
                 F.select_item(
                     F.reshape(hs_conf, (-1, self.n_class + 1)),
-                    conf.flatten()),
+                    F.flatten(conf)),
                 conf.shape)
 
             loss = F.sum(
                 F.sum(loss_loc + loss_conf, axis=1) *
                 xp.where(
-                    (conf > 0).any(axis=1),
-                    1 / (conf > 0).sum(axis=1),
+                    (conf.data > 0).any(axis=1),
+                    1 / (conf.data > 0).sum(axis=1),
                     xp.zeros(conf.shape[:1])).astype(np.float32))
 
             return loss
