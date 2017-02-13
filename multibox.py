@@ -68,6 +68,7 @@ class MultiBox(chainer.Chain):
 
         if xp is np:
             np_loss_conf = loss_conf.data.copy()
+            np_pos = pos
             np_n_pos = n_pos
         else:
             np_loss_conf = xp.asnumpy(loss_conf.data)
