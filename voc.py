@@ -39,7 +39,7 @@ class VOCDataset(chainer.dataset.DatasetMixin):
 
         self.images = list()
         for year, name in sets:
-            root = os.path.join(self.root, 'VOC{:d}'.format(year))
+            root = os.path.join(self.root, 'VOC' + year)
             for line in open(
                     os.path.join(root, 'ImageSets', 'Main', name + '.txt')):
                 self.images.append((root, line.strip()))
