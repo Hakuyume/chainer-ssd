@@ -84,6 +84,7 @@ if __name__ == '__main__':
     model = SSD300(
         n_class=20,
         n_anchors=multibox_encoder.n_anchors)
+    model.train = True
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
