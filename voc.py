@@ -32,14 +32,17 @@ names = (
 
 class VOCDataset(chainer.dataset.DatasetMixin):
 
-    def __init__(self, root, size, encoder):
+    def __init__(self, root, sets, size, encoder):
         self.root = root
         self.size = size
         self.encoder = encoder
 
-        self.images = [
-            l.strip() for l in open(os.path.join(
-                self.root, 'ImageSets', 'Main', 'trainval.txt'))]
+        self.images = list()
+        for year, name in sets:
+            root = os.path.join(self.root, 'VOC{:d}'.format(year))
+            for line in open(
+                    os.path.join(root, 'ImageSets', 'Main', name + '.txt')):
+                self.images.append((root, line.strip()))
 
     def __len__(self):
         return len(self.images)
@@ -47,7 +50,7 @@ class VOCDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         x = cv2.imread(
             os.path.join(
-                self.root, 'JPEGImages', self.images[i] + '.jpg'),
+                self.images[i][0], 'JPEGImages', self.images[i][1] + '.jpg'),
             cv2.IMREAD_COLOR)
         h, w, _ = x.shape
         x = cv2.resize(x, (self.size, self.size)).astype(np.float32)
@@ -57,7 +60,7 @@ class VOCDataset(chainer.dataset.DatasetMixin):
         boxes = list()
         classes = list()
         tree = ET.parse(os.path.join(
-            self.root, 'Annotations', self.images[i] + '.xml'))
+            self.images[i][0], 'Annotations', self.images[i][1] + '.xml'))
         for child in tree.getroot():
             if not child.tag == 'object':
                 continue

@@ -14,7 +14,8 @@ from voc import VOCDataset
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--root')
+    parser.add_argument('--root', default='VOCDevkit')
+    parser.add_argument('--train', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--loaderjob', type=int, default=2)
     parser.add_argument('--gpu', type=int, default=-1)
@@ -42,7 +43,8 @@ if __name__ == '__main__':
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    train = VOCDataset(args.root, size, multibox_encoder)
+    train = VOCDataset(
+        args.root, [t.split('-') for t in args.train], size, multibox_encoder)
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize, n_processes=args.loaderjob)
