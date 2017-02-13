@@ -47,10 +47,10 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             if not child.tag == 'object':
                 continue
             bndbox = child.find('bndbox')
-            xmin = float(bndbox.find('xmin'))
-            ymin = float(bndbox.find('ymin'))
-            xmax = float(bndbox.find('xmax'))
-            ymax = float(bndbox.find('ymax'))
+            xmin = float(bndbox.find('xmin').text)
+            ymin = float(bndbox.find('ymin').text)
+            xmax = float(bndbox.find('xmax').text)
+            ymax = float(bndbox.find('ymax').text)
             boxes.append((
                 (xmin + xmax) / (2 * w),
                 (ymin + ymax) / (2 * h),
