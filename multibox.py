@@ -23,7 +23,7 @@ class MultiBox(chainer.Chain):
             self.conf.add_link(L.Convolution2D(
                 None, n * (self.n_class + 1), 3, stride=1, pad=1))
 
-    def __call__(self, xs, loc, conf):
+    def __call__(self, xs):
         hs_loc = list()
         hs_conf = list()
 
@@ -41,37 +41,36 @@ class MultiBox(chainer.Chain):
         hs_loc = F.concat(hs_loc, axis=1)
         hs_conf = F.concat(hs_conf, axis=1)
 
-        if loc is None or conf is None:
-            return hs_loc, hs_conf
-        else:
-            xp = cuda.get_array_module(xs[0].data)
+        return hs_loc, hs_conf
 
-            loss_loc = F.reshape(
-                F.huber_loss(
-                    F.reshape(hs_loc, (-1, 4)),
-                    F.reshape(loc, (-1, 4)),
-                    1),
-                conf.shape)
-            loss_loc = F.where(
-                conf.data > 0,
-                loss_loc,
-                xp.zeros_like(loss_loc.data))
+    def loss(self, x_loc, x_conf, t_loc, t_conf):
+        xp = cuda.get_array_module(x_loc.data)
 
-            loss_conf = F.logsumexp(hs_conf, axis=2) - F.reshape(
-                F.select_item(
-                    F.reshape(hs_conf, (-1, self.n_class + 1)),
-                    F.flatten(conf)),
-                conf.shape)
+        loss_loc = F.reshape(
+            F.huber_loss(
+                F.reshape(x_loc, (-1, 4)),
+                F.reshape(t_loc, (-1, 4)),
+                1),
+            t_conf.shape)
+        loss_loc = F.where(
+            t_conf.data > 0,
+            loss_loc,
+            xp.zeros_like(loss_loc.data))
 
-            loss = F.sum(
-                F.sum(loss_loc + loss_conf, axis=1) *
-                xp.where(
-                    (conf.data > 0).any(axis=1),
-                    1 / (conf.data > 0).sum(axis=1),
-                    xp.zeros(conf.shape[:1])).astype(np.float32))
+        loss_conf = F.logsumexp(x_conf, axis=2) - F.reshape(
+            F.select_item(
+                F.reshape(x_conf, (-1, self.n_class + 1)),
+                F.flatten(t_conf)),
+            t_conf.shape)
 
-            chainer.report({'loss': loss}, self)
-            return loss
+        loss = F.sum(
+            F.sum(loss_loc + loss_conf, axis=1) *
+            xp.where(
+                (t_conf.data > 0).any(axis=1),
+                1 / (t_conf.data > 0).sum(axis=1),
+                xp.zeros(t_conf.shape[:1])).astype(np.float32))
+
+        return loss
 
 
 class MultiBoxEncoder:

@@ -37,7 +37,7 @@ class SSD300(chainer.Chain):
         )
         self.train = False
 
-    def __call__(self, x, loc=None, conf=None):
+    def __call__(self, x, t_loc=None, t_conf=None):
         hs = list()
 
         layers = self.base(x, layers=['conv4_3', 'conv5_3'])
@@ -65,4 +65,11 @@ class SSD300(chainer.Chain):
         h = F.relu(self.conv11_2(h))
         hs.append(h)
 
-        return self.multibox(hs, loc, conf)
+        h_loc, h_conf = self.multibox(hs)
+
+        if self.train:
+            loss = self.multibox.loss(h_loc, h_conf, t_loc, t_conf)
+            chainer.report({'loss': loss}, self)
+            return loss
+        else:
+            return h_loc, h_conf
