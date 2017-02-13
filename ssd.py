@@ -1,3 +1,5 @@
+import numpy as np
+
 import chainer
 import chainer.links as L
 import chainer.functions as F
@@ -7,7 +9,7 @@ from multibox import MultiBox
 
 def normalize_2d(x, eps=1e-05):
     norm = F.sqrt(F.sum(F.square(x), axis=1)) + eps
-    norm = F.broadcast_to(norm[:, None], x.shape)
+    norm = F.broadcast_to(norm[:, np.newaxis], x.shape)
     return x / norm
 
 
