@@ -66,6 +66,14 @@ class MultiBox(chainer.Chain):
                 F.flatten(t_conf)),
             t_conf.shape)
 
+        neg = ~pos
+        hard_neg = (-loss_conf.data * neg).argsort(axis=1).argsort(axis=1) \
+            < n_pos[:, np.newaxis] * 3
+        loss_conf = F.where(
+            xp.logical_or(pos, hard_neg),
+            loss_conf,
+            xp.zeros_like(loss_conf.data))
+
         loss = F.sum(
             F.sum(loss_loc + loss_conf, axis=1) *
             xp.where(
