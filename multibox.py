@@ -70,6 +70,7 @@ class MultiBox(chainer.Chain):
                     1 / (conf.data > 0).sum(axis=1),
                     xp.zeros(conf.shape[:1])).astype(np.float32))
 
+            chainer.report({'loss': loss}, self)
             return loss
 
 
