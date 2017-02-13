@@ -94,7 +94,7 @@ if __name__ == '__main__':
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize, n_processes=args.loaderjob)
 
-    optimizer = chainer.optimizers.MomentumSGD(lr=0.01, momentum=0.9)
+    optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(model)
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
