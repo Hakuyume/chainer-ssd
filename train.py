@@ -14,7 +14,7 @@ from voc import VOCDataset
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--root', default='VOCDevkit')
+    parser.add_argument('--root', default='VOCdevkit')
     parser.add_argument('--train', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--loaderjob', type=int, default=2)
