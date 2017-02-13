@@ -18,6 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--loaderjob', type=int, default=2)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
+    parser.add_argument('--resume')
     args = parser.parse_args()
 
     size = 300
@@ -61,5 +62,8 @@ if __name__ == '__main__':
         extensions.PrintReport(['epoch', 'iteration', 'main/loss', 'lr']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
+
+    if args.resume:
+        chainer.serializers.load_npz(args.resume, trainer)
 
     trainer.run()
