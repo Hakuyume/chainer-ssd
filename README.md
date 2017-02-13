@@ -36,14 +36,16 @@ curl -LO http://cs.unc.edu/~wliu/projects/ParseNet/VGG_ILSVRC_16_layers_fc_reduc
 ```
 python3 convert_caffe.py --baseonly VGG_ILSVRC_16_layers_fc_reduced.caffemodel vgg16.npz
 ```
-#### 3\. Download VOC2007 dataset
+#### 3\. Download VOC dataset
 ```
 curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
 tar xf VOCtrainval_06-Nov-2007.tar
+tar xf VOCtrainval_11-May-2012.tar
 ```
 #### 4\. Train
 ```
-python3 train.py --init vgg16.npz --root VOCdevkit/VOC2007/ [--gpu gpu]
+python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
 
 ## ToDo
