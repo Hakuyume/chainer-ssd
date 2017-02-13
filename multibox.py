@@ -45,8 +45,6 @@ class MultiBox(chainer.Chain):
             return hs_loc, hs_conf
         else:
             xp = cuda.get_array_module(xs[0])
-            if isinstance(conf, chainer.Variable):
-                conf = conf.data
 
             loss_loc = F.reshape(
                 F.huber_loss(
