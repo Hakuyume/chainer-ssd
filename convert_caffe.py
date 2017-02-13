@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import numpy as np
 
 from chainer import serializers
 from chainer.links.caffe import CaffeFunction
@@ -40,7 +41,9 @@ if __name__ == '__main__':
     model.conv6.copyparams(caffe_model.fc6)
     model.conv7.copyparams(caffe_model.fc7)
 
-    if not args.baseonly:
+    if args.baseonly:
+        model(np.empty((1, 3, 300, 300), dtype=np.float32))
+    else:
         model.conv8_1.copyparams(caffe_model.conv6_1)
         model.conv8_2.copyparams(caffe_model.conv6_2)
 
