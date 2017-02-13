@@ -3,6 +3,7 @@
 import argparse
 
 import chainer
+from chainer import serializers
 from chainer import training
 from chainer.training import extensions
 
@@ -18,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--loaderjob', type=int, default=2)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
+    parser.add_argument('--init')
     parser.add_argument('--resume')
     args = parser.parse_args()
 
@@ -33,6 +35,8 @@ if __name__ == '__main__':
     model = SSD300(
         n_class=20,
         n_anchors=multibox_encoder.n_anchors)
+    if args.init:
+        serializers.load_npz(args.init, model)
     model.train = True
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
