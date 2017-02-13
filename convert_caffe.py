@@ -37,10 +37,10 @@ if __name__ == '__main__':
     model.base.conv5_2.copyparams(caffe_model.conv5_2)
     model.base.conv5_3.copyparams(caffe_model.conv5_3)
 
-    if not args.baseonly:
-        model.conv6.copyparams(caffe_model.fc6)
-        model.conv7.copyparams(caffe_model.fc7)
+    model.conv6.copyparams(caffe_model.fc6)
+    model.conv7.copyparams(caffe_model.fc7)
 
+    if not args.baseonly:
         model.conv8_1.copyparams(caffe_model.conv6_1)
         model.conv8_2.copyparams(caffe_model.conv6_2)
 
