@@ -27,6 +27,18 @@ python3 predict.py ssd300.npz image.jpg
 (press 'q' to exit)  
 ![result](result.jpg "result")
 
+### Training (on going)
+#### 1\. Download VOC2007 dataset
+```
+curl -LO wget http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
+tar xf VOCtrainval_06-Nov-2007.tar
+```
+
+#### 2\. Train
+```
+python3 train.py --root VOCdevkit/VOC2007/ [--gpu gpu]
+```
+
 ## References
 + Liu, Wei, et al. "SSD: Single shot multibox detector." ECCV2016.
 + [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
