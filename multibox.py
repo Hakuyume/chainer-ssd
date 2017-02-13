@@ -49,8 +49,9 @@ class MultiBox(chainer.Chain):
                     F.reshape(loc, (loc.size // 4, 4)),
                     1),
                 conf.shape)
+            mask_loc = conf > 0
             loss_loc = F.where(
-                conf > 0, loss_loc, np.zeros_like(conf, dtype=np.float32))
+                mask_loc, loss_loc, np.zeros_like(conf, dtype=np.float32))
 
             dim = self.n_class + 1
             loss_conf = F.logsumexp(hs_conf, axis=2) - F.reshape(
