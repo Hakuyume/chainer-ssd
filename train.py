@@ -57,7 +57,8 @@ class VOCDataset(chainer.dataset.DatasetMixin):
                 (xmax - xmin) / w,
                 (ymax - ymin) / h))
             classes.append(voc.names.index(child.find('name').text))
-        loc, conf = self.encoder.encode(boxes, classes)
+        loc, conf = self.encoder.encode(
+            np.array(boxes), np.array(classes))
 
         return x, loc, conf
 
