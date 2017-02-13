@@ -46,6 +46,9 @@ class MultiBox(chainer.Chain):
     def loss(self, x_loc, x_conf, t_loc, t_conf):
         xp = cuda.get_array_module(x_loc.data)
 
+        pos = t_conf.data > 0
+        n_pos = pos.sum(axis=1)
+
         loss_loc = F.reshape(
             F.huber_loss(
                 F.reshape(x_loc, (-1, 4)),
@@ -53,7 +56,7 @@ class MultiBox(chainer.Chain):
                 1),
             t_conf.shape)
         loss_loc = F.where(
-            t_conf.data > 0,
+            pos,
             loss_loc,
             xp.zeros_like(loss_loc.data))
 
@@ -66,8 +69,8 @@ class MultiBox(chainer.Chain):
         loss = F.sum(
             F.sum(loss_loc + loss_conf, axis=1) *
             xp.where(
-                (t_conf.data > 0).any(axis=1),
-                1 / (t_conf.data > 0).sum(axis=1),
+                n_pos,
+                1 / n_pos,
                 xp.zeros(t_conf.shape[:1])).astype(np.float32))
 
         return loss / t_conf.shape[0]
