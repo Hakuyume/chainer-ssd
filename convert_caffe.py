@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('source')
     parser.add_argument('target')
-    parser.add_argument('--baseonly', type=bool, store=True)
+    parser.add_argument('--baseonly', action='store_true')
     parser.set_defaults(baseonly=False)
     args = parser.parse_args()
 
