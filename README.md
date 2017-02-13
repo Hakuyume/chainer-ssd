@@ -39,6 +39,10 @@ tar xf VOCtrainval_06-Nov-2007.tar
 python3 train.py --root VOCdevkit/VOC2007/ [--gpu gpu]
 ```
 
+## ToDo
+- Add data augmentation
+- Evaluate converted/trained models
+
 ## References
 + Liu, Wei, et al. "SSD: Single shot multibox detector." ECCV2016.
 + [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
