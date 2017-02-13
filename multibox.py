@@ -22,7 +22,7 @@ class MultiBox(chainer.Chain):
             self.conf.add_link(L.Convolution2D(
                 None, n * (self.n_class + 1), 3, stride=1, pad=1))
 
-    def __call__(self, xs):
+    def __call__(self, xs, loc, conf):
         hs_loc = list()
         hs_conf = list()
 
@@ -39,7 +39,34 @@ class MultiBox(chainer.Chain):
 
         hs_loc = F.concat(hs_loc, axis=1)
         hs_conf = F.concat(hs_conf, axis=1)
-        return hs_loc, hs_conf
+
+        if loc is None or conf is None:
+            return hs_loc, hs_conf
+        else:
+            loss_loc = F.reshape(
+                F.huber_loss(
+                    F.reshape(hs_loc, (hs_loc.size // 4, 4)),
+                    F.reshape(loc, (loc.size // 4, 4)),
+                    1),
+                conf.shape)
+            loss_loc = F.where(
+                conf > 0, loss_loc, np.zeros_like(conf, dtype=np.float32))
+
+            dim = self.n_class + 1
+            loss_conf = F.logsumexp(hs_conf, axis=2) - F.reshape(
+                F.select_item(
+                    F.reshape(hs_conf, (hs_conf.size // dim, dim)),
+                    conf.flatten()),
+                conf.shape)
+
+            loss = F.sum(
+                F.sum(loss_loc + loss_conf, axis=1) *
+                np.where(
+                    (conf > 0).any(axis=1),
+                    1 / (conf > 0).sum(axis=1),
+                    np.zeros(conf.shape[:1])).astype(np.float32))
+
+            return loss
 
 
 class MultiBoxEncoder:

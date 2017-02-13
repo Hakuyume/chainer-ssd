@@ -37,7 +37,7 @@ class SSD300(chainer.Chain):
         )
         self.train = False
 
-    def __call__(self, x):
+    def __call__(self, x, loc=None, conf=None):
         hs = list()
 
         layers = self.base(x, layers=['conv4_3', 'conv5_3'])
@@ -65,4 +65,4 @@ class SSD300(chainer.Chain):
         h = F.relu(self.conv11_2(h))
         hs.append(h)
 
-        return self.multibox(hs)
+        return self.multibox(hs, loc, conf)
