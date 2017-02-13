@@ -43,6 +43,9 @@ class MultiBox(chainer.Chain):
         if loc is None or conf is None:
             return hs_loc, hs_conf
         else:
+            if isinstance(conf, chainer.Variable):
+                conf = conf.data
+
             loss_loc = F.reshape(
                 F.huber_loss(
                     F.reshape(hs_loc, (hs_loc.size // 4, 4)),
