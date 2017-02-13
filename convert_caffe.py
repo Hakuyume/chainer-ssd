@@ -12,6 +12,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('source')
     parser.add_argument('target')
+    parser.add_argument('--baseonly', type=bool, store=True)
+    parser.set_defaults(baseonly=False)
     args = parser.parse_args()
 
     caffe_model = CaffeFunction(args.source)
@@ -35,37 +37,38 @@ if __name__ == '__main__':
     model.base.conv5_2.copyparams(caffe_model.conv5_2)
     model.base.conv5_3.copyparams(caffe_model.conv5_3)
 
-    model.conv6.copyparams(caffe_model.fc6)
-    model.conv7.copyparams(caffe_model.fc7)
+    if not args.baseonly:
+        model.conv6.copyparams(caffe_model.fc6)
+        model.conv7.copyparams(caffe_model.fc7)
 
-    model.conv8_1.copyparams(caffe_model.conv6_1)
-    model.conv8_2.copyparams(caffe_model.conv6_2)
+        model.conv8_1.copyparams(caffe_model.conv6_1)
+        model.conv8_2.copyparams(caffe_model.conv6_2)
 
-    model.conv9_1.copyparams(caffe_model.conv7_1)
-    model.conv9_2.copyparams(caffe_model.conv7_2)
+        model.conv9_1.copyparams(caffe_model.conv7_1)
+        model.conv9_2.copyparams(caffe_model.conv7_2)
 
-    model.conv10_1.copyparams(caffe_model.conv8_1)
-    model.conv10_2.copyparams(caffe_model.conv8_2)
+        model.conv10_1.copyparams(caffe_model.conv8_1)
+        model.conv10_2.copyparams(caffe_model.conv8_2)
 
-    model.conv11_1.copyparams(caffe_model.conv9_1)
-    model.conv11_2.copyparams(caffe_model.conv9_2)
+        model.conv11_1.copyparams(caffe_model.conv9_1)
+        model.conv11_2.copyparams(caffe_model.conv9_2)
 
-    model.multibox.loc[0].copyparams(caffe_model.conv4_3_norm_mbox_loc)
-    model.multibox.conf[0].copyparams(caffe_model.conv4_3_norm_mbox_conf)
+        model.multibox.loc[0].copyparams(caffe_model.conv4_3_norm_mbox_loc)
+        model.multibox.conf[0].copyparams(caffe_model.conv4_3_norm_mbox_conf)
 
-    model.multibox.loc[1].copyparams(caffe_model.fc7_mbox_loc)
-    model.multibox.conf[1].copyparams(caffe_model.fc7_mbox_conf)
+        model.multibox.loc[1].copyparams(caffe_model.fc7_mbox_loc)
+        model.multibox.conf[1].copyparams(caffe_model.fc7_mbox_conf)
 
-    model.multibox.loc[2].copyparams(caffe_model.conv6_2_mbox_loc)
-    model.multibox.conf[2].copyparams(caffe_model.conv6_2_mbox_conf)
+        model.multibox.loc[2].copyparams(caffe_model.conv6_2_mbox_loc)
+        model.multibox.conf[2].copyparams(caffe_model.conv6_2_mbox_conf)
 
-    model.multibox.loc[3].copyparams(caffe_model.conv7_2_mbox_loc)
-    model.multibox.conf[3].copyparams(caffe_model.conv7_2_mbox_conf)
+        model.multibox.loc[3].copyparams(caffe_model.conv7_2_mbox_loc)
+        model.multibox.conf[3].copyparams(caffe_model.conv7_2_mbox_conf)
 
-    model.multibox.loc[4].copyparams(caffe_model.conv8_2_mbox_loc)
-    model.multibox.conf[4].copyparams(caffe_model.conv8_2_mbox_conf)
+        model.multibox.loc[4].copyparams(caffe_model.conv8_2_mbox_loc)
+        model.multibox.conf[4].copyparams(caffe_model.conv8_2_mbox_conf)
 
-    model.multibox.loc[5].copyparams(caffe_model.conv9_2_mbox_loc)
-    model.multibox.conf[5].copyparams(caffe_model.conv9_2_mbox_conf)
+        model.multibox.loc[5].copyparams(caffe_model.conv9_2_mbox_loc)
+        model.multibox.conf[5].copyparams(caffe_model.conv9_2_mbox_conf)
 
     serializers.save_npz(args.target, model)
