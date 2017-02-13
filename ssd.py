@@ -17,7 +17,7 @@ class SSD300(chainer.Chain):
 
     def __init__(self, n_class, n_anchors):
         super().__init__(
-            base=L.VGG16Layers(),
+            base=L.VGG16Layers(pretrained_model=None),
 
             conv6=L.DilatedConvolution2D(
                 None, 1024, 3, stride=1, pad=6, dilate=6),
