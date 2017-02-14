@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+import random
 import xml.etree.ElementTree as ET
 
 import chainer
@@ -47,6 +48,39 @@ class VOCDataset(chainer.dataset.DatasetMixin):
     def __len__(self):
         return len(self.images)
 
+    def augment(self, image, boxes, classes):
+        h, w, _ = image.shape
+
+        mode = random.randrange(2)
+        if mode == 0:
+            patch = (0, 0, w, h)
+        elif mode == 1:
+            size = random.uniform(0.1, 1) * w * h
+            aspect = random.uniform(
+                max(0.5, size / (w * w)),
+                min(2, (h * h) / size))
+            patch_w = np.sqrt(size / aspect)
+            patch_h = np.sqrt(size * aspect)
+            patch_l = random.uniform(0, w - patch_w)
+            patch_t = random.uniform(0, h - patch_h)
+            patch = (patch_l, patch_t, patch_l + patch_w, patch_t + patch_h)
+
+        image = image[
+            int(patch[1]):int(patch[3]),
+            int(patch[0]):int(patch[2])]
+
+        centers = (boxes[:, :2] + boxes[:, 2:]) / 2
+        mask = np.logical_and(
+            (patch[:2] <= centers).all(axis=1),
+            (patch[2:] > centers).all(axis=1))
+        boxes = boxes[mask]
+        classes = classes[mask]
+
+        boxes[:, :2] = np.maximum(boxes[:, :2], patch[:2]) - patch[:2]
+        boxes[:, 2:] = np.minimum(boxes[:, 2:], patch[2:]) - patch[:2]
+
+        return image, boxes, classes
+
     def get_example(self, i):
         image = cv2.imread(
             os.path.join(
@@ -67,6 +101,8 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             classes.append(names.index(child.find('name').text))
         boxes = np.array(boxes)
         classes = np.array(classes)
+
+        image, boxes, classes = self.augment(image, boxes, classes)
 
         h, w, _ = image.shape
         image = cv2.resize(image, (self.size, self.size))
