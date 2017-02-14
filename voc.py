@@ -61,15 +61,9 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             if not child.tag == 'object':
                 continue
             bndbox = child.find('bndbox')
-            xmin = float(bndbox.find('xmin').text)
-            ymin = float(bndbox.find('ymin').text)
-            xmax = float(bndbox.find('xmax').text)
-            ymax = float(bndbox.find('ymax').text)
-            boxes.append((
-                (xmin + xmax) / 2,
-                (ymin + ymax) / 2,
-                xmax - xmin,
-                ymax - ymin))
+            boxes.append(tuple(
+                float(bndbox.find(t).text)
+                for t in ('xmin', 'ymin', 'xmax', 'ymax')))
             classes.append(names.index(child.find('name').text))
         boxes = np.array(boxes)
         classes = np.array(classes)

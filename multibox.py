@@ -136,27 +136,30 @@ class MultiBoxEncoder:
         lt = np.maximum(
             (self.default_boxes[:, :2] -
              self.default_boxes[:, 2:] / 2)[:, np.newaxis],
-            boxes[:, :2] - boxes[:, 2:] / 2)
+            boxes[:, :2])
         rb = np.minimum(
             (self.default_boxes[:, :2] +
              self.default_boxes[:, 2:] / 2)[:, np.newaxis],
-            boxes[:, :2] + boxes[:, 2:] / 2)
+            boxes[:, 2:])
 
         area_i = np.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
         area_defaultboxes = np.prod(self.default_boxes[:, 2:], axis=1)
-        area_boxes = np.prod(boxes[:, 2:], axis=1)
+        area_boxes = np.prod(boxes[:, 2:] - boxes[:, :2], axis=1)
         iou = area_i / (area_defaultboxes[:, np.newaxis] + area_boxes - area_i)
 
         gt_idx = iou.argmax(axis=1)
+        iou = iou.max(axis=1)
+        boxes = boxes[gt_idx]
+        classes = classes[gt_idx]
 
         loc = np.hstack((
-            (boxes[gt_idx][:, :2] - self.default_boxes[:, :2]) /
+            ((boxes[:, :2] + boxes[:, 2:]) / 2 - self.default_boxes[:, :2]) /
             (self.variance[0] * self.default_boxes[:, 2:]),
-            np.log(boxes[gt_idx][:, 2:] / self.default_boxes[:, 2:]) /
+            np.log((boxes[:, 2:] - boxes[:, :2]) / self.default_boxes[:, 2:]) /
             self.variance[1]))
 
-        conf = 1 + classes[gt_idx]
-        conf[(iou < threshold).all(axis=1)] = 0
+        conf = 1 + classes
+        conf[iou < threshold] = 0
 
         return loc.astype(np.float32), conf.astype(np.int32)
 
@@ -165,6 +168,8 @@ class MultiBoxEncoder:
             self.default_boxes[:, :2] +
             loc[:, :2] * self.variance[0] * self.default_boxes[:, 2:],
             self.default_boxes[:, 2:] * np.exp(loc[:, 2:] * self.variance[1])))
+        boxes[:, :2] -= boxes[:, 2:] / 2
+        boxes[:, 2:] += boxes[:, :2]
         conf = np.exp(conf)
         conf /= conf.sum(axis=1)[:, np.newaxis]
 
