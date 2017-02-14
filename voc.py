@@ -76,8 +76,9 @@ class VOCDataset(chainer.dataset.DatasetMixin):
         boxes = boxes[mask]
         classes = classes[mask]
 
-        boxes[:, :2] = np.maximum(boxes[:, :2], patch[:2]) - patch[:2]
-        boxes[:, 2:] = np.minimum(boxes[:, 2:], patch[2:]) - patch[:2]
+        boxes = np.hstack((
+            np.maximum(boxes[:, :2], patch[:2]) - patch[:2],
+            np.minimum(boxes[:, 2:], patch[2:]) - patch[:2]))
 
         return image, boxes, classes
 
