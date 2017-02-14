@@ -80,6 +80,10 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             np.maximum(boxes[:, :2], patch[:2]) - patch[:2],
             np.minimum(boxes[:, 2:], patch[2:]) - patch[:2]))
 
+        if random.random() < 0.5:
+            image = image[:, ::-1]
+            boxes[:, ::2] = patch[2] - patch[0] - boxes[:, ::2]
+
         return image, boxes, classes
 
     def get_example(self, i):
