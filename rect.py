@@ -11,8 +11,8 @@ class Rect(tuple):
         return Rect((
             left,
             top,
-            left + width - 1,
-            top + height - 1))
+            left + width,
+            top + height))
 
     def XYWH(center_x, center_y, width, height):
         return Rect((
@@ -39,11 +39,11 @@ class Rect(tuple):
 
     @property
     def width(self):
-        return self.right - self.left + 1
+        return self.right - self.left
 
     @property
     def height(self):
-        return self.bottom - self.top + 1
+        return self.bottom - self.top
 
     def __and__(self, other):
         left = max(self.left, other.left)
@@ -51,7 +51,7 @@ class Rect(tuple):
         right = min(self.right, other.right)
         bottom = min(self.bottom, other.bottom)
 
-        if left <= right and top <= bottom:
+        if left < right and top < bottom:
             return Rect.LTRB(left, top, right, bottom)
         else:
             return None
