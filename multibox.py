@@ -133,6 +133,11 @@ class MultiBoxEncoder:
         return tuple((len(ar) + 1) * 2 for ar in self.aspect_ratios)
 
     def encode(self, boxes, classes, threshold=0.5):
+        if len(boxes) == 0:
+            return (
+                np.empty(self.default_boxes.shape, dtype=np.float32),
+                np.zeros(self.default_boxes.shape[:1], dtype=np.int32))
+
         lt = np.maximum(
             (self.default_boxes[:, :2] -
              self.default_boxes[:, 2:] / 2)[:, np.newaxis],
