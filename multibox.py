@@ -92,7 +92,7 @@ class MultiBox(chainer.Chain):
                 1 / n_pos,
                 xp.zeros(t_conf.shape[:1])).astype(np.float32))
 
-        return loss / t_conf.shape[0]
+        return loss / xp.count_nonzero(n_pos)
 
 
 class MultiBoxEncoder:
