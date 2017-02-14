@@ -57,8 +57,8 @@ if __name__ == '__main__':
 
         cv2.rectangle(
             img,
-            (int(box.left()), int(box.top())),
-            (int(box.right()), int(box.bottom())),
+            (int(box.left), int(box.top)),
+            (int(box.right), int(box.bottom)),
             (0, 0, 255),
             3)
 
@@ -66,14 +66,14 @@ if __name__ == '__main__':
         (w, h), b = cv2.getTextSize(name, cv2.FONT_HERSHEY_PLAIN, 1, 1)
         cv2.rectangle(
             img,
-            (int(box.left()), int(box.top())),
-            (int(box.left() + w), int(box.top() + h + b)),
+            (int(box.left), int(box.top)),
+            (int(box.left + w), int(box.top + h + b)),
             (0, 0, 255),
             -1)
         cv2.putText(
             img,
             name,
-            (int(box.left()), int(box.top() + h)),
+            (int(box.left), int(box.top + h)),
             cv2.FONT_HERSHEY_PLAIN,
             1,
             (255, 255, 255))
