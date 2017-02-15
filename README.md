@@ -20,7 +20,7 @@ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ```
 python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
 ```
-#### 3\. Predict
+#### 3\. Test
 ```
 python3 predict.py ssd300.npz image.jpg
 (press 'q' to exit)
@@ -46,6 +46,11 @@ tar xf VOCtrainval_11-May-2012.tar
 #### 4\. Train
 ```
 python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
+```
+#### 5\. Test
+```
+python3 predict.py result/model_iter_20000 image.jpg
+(press 'q' to exit)
 ```
 ![result](result_trained.jpg "result (iter = 20000)")
 
