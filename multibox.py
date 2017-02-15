@@ -43,45 +43,44 @@ class MultiBox(chainer.Chain):
 
         return hs_loc, hs_conf
 
+    def mine_hard_negative(self, x_conf, t_conf):
+        xp = cuda.get_array_module(x_conf.data)
+
+        if xp is np:
+            x_conf = x_conf.data
+            t_conf = t_conf.data
+        else:
+            x_conf = xp.asnumpy(x_conf.data)
+            t_conf = xp.asnumpy(t_conf.data)
+
+        score = np.exp(x_conf)
+        score = score[:, :, 1:].max(axis=2) / score.sum(axis=2)
+        score[t_conf > 0] = 0
+        rank = (-score).argsort(axis=1).argsort(axis=1)
+        hard_neg = rank < (np.count_nonzero(t_conf, axis=1) * 3)[:, np.newaxis]
+
+        return xp.array(hard_neg)
+
     def loss(self, x_loc, x_conf, t_loc, t_conf):
-        xp = cuda.get_array_module(x_loc.data)
-
-        pos = t_conf.data > 0
-        n_pos = pos.sum(axis=1)
-
-        if n_pos.sum() == 0:
+        pos = (t_conf.data > 0).flatten()
+        if (not pos).all():
             return 0, 0
 
+        xp = cuda.get_array_module(pos)
         zero = xp.zeros(pos.shape, dtype=np.float32)
 
         x_loc = F.reshape(x_loc, (-1, 4))
         t_loc = F.reshape(t_loc, (-1, 4))
         loss_loc = F.huber_loss(x_loc, t_loc, 1)
-        loss_loc = F.where(pos.flatten(), loss_loc, zero.flatten())
-        loss_loc = F.sum(loss_loc) / n_pos.sum()
+        loss_loc = F.where(pos, loss_loc, zero)
+        loss_loc = F.sum(loss_loc) / pos.sum()
 
-        if xp is np:
-            score = x_conf.data.copy()
-            np_pos = pos
-            np_n_pos = n_pos
-        else:
-            score = xp.asnumpy(x_conf.data)
-            np_pos = xp.asnumpy(pos)
-            np_n_pos = xp.asnumpy(n_pos)
-        score = np.exp(score)
-        score = score[:, :, 1:].max(axis=2) / score.sum(axis=2)
-        score[np_pos] = 0
-        rank = (-score).argsort(axis=1).argsort(axis=1)
-        hard_neg = rank < (np_n_pos * 3)[:, np.newaxis]
-        hard_neg = xp.array(hard_neg)
-
+        hard_neg = self.mine_hard_negative(x_conf, t_conf).flatten()
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
         t_conf = F.flatten(t_conf)
-        loss_conf = F.reshape(
-            F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf),
-            pos.shape)
+        loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
-        loss_conf = F.sum(loss_conf) / n_pos.sum()
+        loss_conf = F.sum(loss_conf) / pos.sum()
 
         return loss_loc, loss_conf
 
