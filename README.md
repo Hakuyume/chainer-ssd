@@ -23,8 +23,8 @@ python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_S
 #### 3\. Predict
 ```
 python3 predict.py ssd300.npz image.jpg
+(press 'q' to exit)
 ```
-(press 'q' to exit)  
 ![result](result_converted.jpg "result")
 
 ### Training (on going)
