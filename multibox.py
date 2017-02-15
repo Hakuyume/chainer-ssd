@@ -47,7 +47,7 @@ class MultiBox(chainer.Chain):
         xp = cuda.get_array_module(x_loc.data)
 
         pos = t_conf.data > 0
-        n_pos = xp.count_nonzero(pos, axis=1)
+        n_pos = pos.sum(axis=1)
         pos = xp.flatten(pos)
 
         if n_pos.sum() == 0:
