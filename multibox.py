@@ -57,10 +57,7 @@ class MultiBox(chainer.Chain):
 
         x_loc = F.reshape(x_loc, (-1, 4))
         t_loc = F.reshape(t_loc, (-1, 4))
-        loss_loc = F.huber_loss(
-            F.reshape(x_loc, (-1, 4)),
-            F.reshape(t_loc, (-1, 4)),
-            1)
+        loss_loc = F.huber_loss(x_loc, t_loc, 1)
         loss_loc = F.where(pos, loss_loc, zero)
         loss_loc = F.sum(loss_loc) / n_pos.sum()
 
