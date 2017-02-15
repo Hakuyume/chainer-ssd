@@ -82,7 +82,7 @@ class MultiBox(chainer.Chain):
             -np.minimum(np_n_pos * 3, np_loss_conf.shape[1])]
         threshold = xp.array(threshold)
 
-        hard_neg = loss_conf.data >= threshold
+        hard_neg = loss_conf.data >= threshold[:, np.newaxis]
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
         loss_conf = F.sum(loss_conf) / n_pos.sum()
 
