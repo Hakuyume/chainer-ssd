@@ -65,7 +65,8 @@ if __name__ == '__main__':
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
     trainer.extend(
-        extensions.PrintReport(['epoch', 'iteration', 'main/loss', 'lr']),
+        extensions.PrintReport(
+            ['epoch', 'iteration', 'main/loss', 'main/loc', 'main/conf', 'lr']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 

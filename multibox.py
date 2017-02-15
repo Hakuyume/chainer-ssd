@@ -87,14 +87,15 @@ class MultiBox(chainer.Chain):
             loss_conf,
             xp.zeros_like(loss_conf.data))
 
-        loss = F.sum(
-            F.sum(loss_loc + loss_conf, axis=1) *
-            xp.where(
-                n_pos,
-                1 / n_pos,
-                xp.zeros(t_conf.shape[:1])).astype(np.float32))
+        weight = xp.where(
+            n_pos,
+            1 / n_pos,
+            xp.zeros(t_conf.shape[:1])).astype(np.float32)
+        loss_loc = F.sum(F.sum(loss_loc, axis=1) * weight)
+        loss_conf = F.sum(F.sum(loss_conf, axis=1) * weight)
 
-        return loss / xp.count_nonzero(n_pos)
+        n_valid_samples = xp.count_nonzero(n_pos)
+        return loss_loc / n_valid_samples, loss_conf / n_valid_samples
 
 
 class MultiBoxEncoder:
