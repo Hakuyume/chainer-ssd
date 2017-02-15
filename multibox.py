@@ -61,7 +61,7 @@ class MultiBox(chainer.Chain):
             F.reshape(x_loc, (-1, 4)),
             F.reshape(t_loc, (-1, 4)),
             1)
-        zero = xp.zeros(loss_loc.data)
+        zero = xp.zeros_like(loss_loc.data)
         loss_loc = F.where(pos, loss_loc, zero)
 
         loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
