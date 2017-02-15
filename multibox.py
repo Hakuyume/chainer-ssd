@@ -48,7 +48,6 @@ class MultiBox(chainer.Chain):
 
         pos = t_conf.data > 0
         n_pos = pos.sum(axis=1)
-        pos = pos.flatten()
 
         if n_pos.sum() == 0:
             return 0, 0
@@ -58,12 +57,14 @@ class MultiBox(chainer.Chain):
         x_loc = F.reshape(x_loc, (-1, 4))
         t_loc = F.reshape(t_loc, (-1, 4))
         loss_loc = F.huber_loss(x_loc, t_loc, 1)
-        loss_loc = F.where(pos, loss_loc, zero)
+        loss_loc = F.where(pos.flatten(), loss_loc, zero.flatten())
         loss_loc = F.sum(loss_loc) / n_pos.sum()
 
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
         t_conf = F.flatten(t_conf)
-        loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
+        loss_conf = F.reshape(
+            F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf),
+            pos.shape)
 
         if xp is np:
             np_loss_conf = loss_conf.data.copy()
@@ -79,6 +80,7 @@ class MultiBox(chainer.Chain):
         threshold = np_loss_conf[
             np.arange(np_loss_conf.shape[0]),
             -np.minimum(np_n_pos * 3, np_loss_conf.shape[1])]
+        threshold = xp.array(threshold)
 
         hard_neg = loss_conf.data >= threshold
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
