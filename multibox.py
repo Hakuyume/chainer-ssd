@@ -60,29 +60,26 @@ class MultiBox(chainer.Chain):
         loss_loc = F.where(pos.flatten(), loss_loc, zero.flatten())
         loss_loc = F.sum(loss_loc) / n_pos.sum()
 
+        if xp is np:
+            score = x_conf.data.copy()
+            np_pos = pos
+            np_n_pos = n_pos
+        else:
+            score = xp.asnumpy(x_conf.data)
+            np_pos = xp.asnumpy(pos)
+            np_n_pos = xp.asnumpy(n_pos)
+        score = np.exp(score)
+        score = score[:, :, 1:].max(axis=2) / score.sum(axis=2)
+        score[np_pos] = 0
+        (-score).argsort(axis=1).argsort(axis=1)
+        hard_neg = score < (n_pos * 3)[:, np.newaxis]
+        hard_neg = xp.array(hard_neg)
+
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
         t_conf = F.flatten(t_conf)
         loss_conf = F.reshape(
             F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf),
             pos.shape)
-
-        if xp is np:
-            np_loss_conf = loss_conf.data.copy()
-            np_pos = pos
-            np_n_pos = n_pos
-        else:
-            np_loss_conf = xp.asnumpy(loss_conf.data)
-            np_pos = xp.asnumpy(pos)
-            np_n_pos = xp.asnumpy(n_pos)
-        np_loss_conf[np_pos] = 0
-        np_loss_conf = np_loss_conf.reshape((len(np_n_pos), -1))
-        np_loss_conf.sort(axis=1)
-        threshold = np_loss_conf[
-            np.arange(np_loss_conf.shape[0]),
-            -np.minimum(np_n_pos * 3, np_loss_conf.shape[1])]
-        threshold = xp.array(threshold)
-
-        hard_neg = loss_conf.data >= threshold[:, np.newaxis]
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
         loss_conf = F.sum(loss_conf) / n_pos.sum()
 
