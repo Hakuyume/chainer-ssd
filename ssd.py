@@ -70,14 +70,11 @@ class SSD300(chainer.Chain):
         h_loc, h_conf = self.multibox(hs)
 
         if self.train:
-            loss_loc, loss_conf = self.multibox.loss(
-                h_loc, h_conf, t_loc, t_conf)
+            loss_loc, loss_conf =
+                self.multibox.loss(h_loc, h_conf, t_loc, t_conf)
             loss = loss_loc + loss_conf
             chainer.report(
-                {
-                    'loss': loss,
-                    'loc': loss_loc,
-                    'conf': loss_conf},
+                {'loss': loss, 'loc': loss_loc, 'conf': loss_conf},
                 self)
             return loss
         else:
