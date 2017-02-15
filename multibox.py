@@ -52,7 +52,7 @@ class MultiBox(chainer.Chain):
         t_conf = F.flatten(t_conf)
 
         pos = t_conf.data > 0
-        n_pos = pos.sum()
+        n_pos = xp.count_nonzero(pos)
 
         if n_pos == 0:
             return 0, 0
