@@ -46,41 +46,46 @@ class MultiBox(chainer.Chain):
     def loss(self, x_loc, x_conf, t_loc, t_conf):
         xp = cuda.get_array_module(x_loc.data)
 
-        x_loc = F.reshape(x_loc, (-1, 4))
-        t_loc = F.reshape(t_loc, (-1, 4))
-        x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
-        t_conf = F.flatten(t_conf)
-
         pos = t_conf.data > 0
-        n_pos = xp.count_nonzero(pos)
+        n_pos = xp.count_nonzero(pos, axis=1)
+        pos = xp.flatten(pos)
 
-        if n_pos == 0:
+        if n_pos.sum() == 0:
             return 0, 0
 
+        zero = xp.zeros(pos.shape, dtype=np.float32)
+
+        x_loc = F.reshape(x_loc, (-1, 4))
+        t_loc = F.reshape(t_loc, (-1, 4))
         loss_loc = F.huber_loss(
             F.reshape(x_loc, (-1, 4)),
             F.reshape(t_loc, (-1, 4)),
             1)
-        zero = xp.zeros_like(loss_loc.data)
         loss_loc = F.where(pos, loss_loc, zero)
+        loss_loc = F.sum(loss_loc) / n_pos.sum()
 
+        x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
+        t_conf = F.flatten(t_conf)
         loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
 
         if xp is np:
             np_loss_conf = loss_conf.data.copy()
             np_pos = pos
+            np_n_pos = n_pos
         else:
             np_loss_conf = xp.asnumpy(loss_conf.data)
             np_pos = xp.asnumpy(pos)
+            np_n_pos = xp.asnumpy(n_pos)
         np_loss_conf[np_pos] = 0
-        np_loss_conf.sort()
-        threshold = np_loss_conf[-min(n_pos * 3, len(np_loss_conf))]
+        np_loss_conf = np_loss_conf.reshape((len(np_n_pos), -1))
+        np_loss_conf.sort(axis=1)
+        threshold = np_loss_conf[
+            np.arange(np_loss_conf.shape[0]),
+            -np.minimum(n_pos * 3, np_loss_conf.shape[1])]
 
         hard_neg = loss_conf.data >= threshold
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
-
-        loss_loc = F.sum(loss_loc) / n_pos
-        loss_conf = F.sum(loss_conf) / n_pos
+        loss_conf = F.sum(loss_conf) / n_pos.sum()
 
         return loss_loc, loss_conf
 
