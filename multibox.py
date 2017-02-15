@@ -74,7 +74,7 @@ class MultiBox(chainer.Chain):
             np_pos = xp.asnumpy(pos)
         np_loss_conf[np_pos] = 0
         np_loss_conf.sort()
-        threshold = np_loss_conf[max(-n_pos * 3, -len(np_loss_conf))]
+        threshold = np_loss_conf[-min(n_pos * 3, len(np_loss_conf))]
 
         hard_neg = loss_conf.data >= threshold
         loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
