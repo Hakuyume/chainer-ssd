@@ -72,7 +72,7 @@ class MultiBox(chainer.Chain):
         score = score[:, :, 1:].max(axis=2) / score.sum(axis=2)
         score[np_pos] = 0
         (-score).argsort(axis=1).argsort(axis=1)
-        hard_neg = score < (n_pos * 3)[:, np.newaxis]
+        hard_neg = score < (np_n_pos * 3)[:, np.newaxis]
         hard_neg = xp.array(hard_neg)
 
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
