@@ -46,56 +46,43 @@ class MultiBox(chainer.Chain):
     def loss(self, x_loc, x_conf, t_loc, t_conf):
         xp = cuda.get_array_module(x_loc.data)
 
+        x_loc = F.reshape(x_loc, (-1, 4))
+        t_loc = F.reshape(t_loc, (-1, 4))
+        x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
+        t_conf = F.flatten(t_conf)
+
         pos = t_conf.data > 0
-        n_pos = pos.sum(axis=1)
+        n_pos = pos.sum()
 
-        loss_loc = F.reshape(
-            F.huber_loss(
-                F.reshape(x_loc, (-1, 4)),
-                F.reshape(t_loc, (-1, 4)),
-                1),
-            t_conf.shape)
-        loss_loc = F.where(
-            pos,
-            loss_loc,
-            xp.zeros_like(loss_loc.data))
+        if n_pos == 0:
+            return 0, 0
 
-        loss_conf = F.logsumexp(x_conf, axis=2) - F.reshape(
-            F.select_item(
-                F.reshape(x_conf, (-1, self.n_class + 1)),
-                F.flatten(t_conf)),
-            t_conf.shape)
+        loss_loc = F.huber_loss(
+            F.reshape(x_loc, (-1, 4)),
+            F.reshape(t_loc, (-1, 4)),
+            1)
+        zero = xp.zeros(loss_loc.data)
+        loss_loc = F.where(pos, loss_loc, zero)
+
+        loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
 
         if xp is np:
             np_loss_conf = loss_conf.data.copy()
             np_pos = pos
-            np_n_pos = n_pos
         else:
             np_loss_conf = xp.asnumpy(loss_conf.data)
             np_pos = xp.asnumpy(pos)
-            np_n_pos = xp.asnumpy(n_pos)
         np_loss_conf[np_pos] = 0
-        np_loss_conf.sort(axis=1)
-        threshold = np_loss_conf[
-            np.arange(len(np_n_pos)),
-            np.maximum(-np_n_pos * 3, -np_loss_conf.shape[1])]
-        threshold = xp.array(threshold)
+        np_loss_conf.sort()
+        threshold = np_loss_conf[max(-n_pos * 3, -len(np_loss_conf))]
 
-        hard_neg = loss_conf.data > threshold[:, np.newaxis]
-        loss_conf = F.where(
-            xp.logical_or(pos, hard_neg),
-            loss_conf,
-            xp.zeros_like(loss_conf.data))
+        hard_neg = loss_conf.data >= threshold
+        loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
 
-        weight = xp.where(
-            n_pos,
-            1 / n_pos,
-            xp.zeros(t_conf.shape[:1])).astype(np.float32)
-        loss_loc = F.sum(F.sum(loss_loc, axis=1) * weight)
-        loss_conf = F.sum(F.sum(loss_conf, axis=1) * weight)
+        loss_loc = F.sum(loss_loc) / n_pos
+        loss_conf = F.sum(loss_conf) / n_pos
 
-        n_valid_samples = xp.count_nonzero(n_pos)
-        return loss_loc / n_valid_samples, loss_conf / n_valid_samples
+        return loss_loc, loss_conf
 
 
 class MultiBoxEncoder:
