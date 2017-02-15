@@ -62,7 +62,7 @@ class MultiBox(chainer.Chain):
         return xp.array(hard_neg)
 
     def loss(self, x_loc, x_conf, t_loc, t_conf):
-        xp = cuda.get_array_module(x_loc)
+        xp = cuda.get_array_module(x_loc.data)
         pos = (t_conf.data > 0).flatten()
         if xp.logical_not(pos).all():
             return 0, 0
