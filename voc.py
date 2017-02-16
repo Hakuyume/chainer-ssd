@@ -43,12 +43,13 @@ class VOCDataset:
     def __len__(self):
         return len(self.images)
 
-    def __getitem__(self, i):
-        image = cv2.imread(
+    def image(self, i):
+        return cv2.imread(
             os.path.join(
                 self.images[i][0], 'JPEGImages', self.images[i][1] + '.jpg'),
             cv2.IMREAD_COLOR)
 
+    def annotation(self, i):
         boxes = list()
         classes = list()
         tree = ET.parse(os.path.join(
@@ -63,5 +64,4 @@ class VOCDataset:
             classes.append(names.index(child.find('name').text))
         boxes = np.array(boxes)
         classes = np.array(classes)
-
-        return image, boxes, classes
+        return boxes, classes
