@@ -16,6 +16,8 @@ from voc import VOCDataset
 
 
 def dump_result(name, size, loc, conf):
+    print(name)
+
     xp = cuda.get_array_module(loc)
     if xp is not np:
         loc = xp.asnumpy(loc)
