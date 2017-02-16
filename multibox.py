@@ -9,7 +9,7 @@ import chainer.functions as F
 
 class MultiBox(chainer.Chain):
 
-    def __init__(self, n_class, n_anchors):
+    def __init__(self, n_class, n_anchors, init=dict()):
         super().__init__(
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
@@ -19,9 +19,9 @@ class MultiBox(chainer.Chain):
 
         for n in n_anchors:
             self.loc.add_link(L.Convolution2D(
-                None, n * 4, 3, stride=1, pad=1))
+                None, n * 4, 3, stride=1, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
-                None, n * (self.n_class + 1), 3, stride=1, pad=1))
+                None, n * (self.n_class + 1), 3, stride=1, pad=1, **init))
 
     def __call__(self, xs):
         hs_loc = list()

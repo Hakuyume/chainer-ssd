@@ -3,6 +3,7 @@ import numpy as np
 import chainer
 import chainer.links as L
 import chainer.functions as F
+from chainer import initializers
 
 from multibox import MultiBox
 
@@ -16,26 +17,27 @@ def normalize_2d(x, eps=1e-05):
 class SSD300(chainer.Chain):
 
     def __init__(self, n_class, n_anchors):
+        init = {'initial_bias': initializers.constant.Zero()}
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
             conv6=L.DilatedConvolution2D(
-                None, 1024, 3, stride=1, pad=6, dilate=6),
-            conv7=L.Convolution2D(None, 1024, 1, stride=1),
+                None, 1024, 3, stride=1, pad=6, dilate=6, **init),
+            conv7=L.Convolution2D(None, 1024, 1, stride=1, **init),
 
-            conv8_1=L.Convolution2D(None, 256, 1, stride=1),
-            conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1),
+            conv8_1=L.Convolution2D(None, 256, 1, stride=1, **init),
+            conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1, **init),
 
-            conv9_1=L.Convolution2D(None, 128, 1, stride=1),
-            conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1),
+            conv9_1=L.Convolution2D(None, 128, 1, stride=1, **init),
+            conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
 
-            conv10_1=L.Convolution2D(None, 128, 1, stride=1),
-            conv10_2=L.Convolution2D(None, 256, 3, stride=1),
+            conv10_1=L.Convolution2D(None, 128, 1, stride=1, **init),
+            conv10_2=L.Convolution2D(None, 256, 3, stride=1, **init),
 
-            conv11_1=L.Convolution2D(None, 128, 1, stride=1),
-            conv11_2=L.Convolution2D(None, 256, 3, stride=1),
+            conv11_1=L.Convolution2D(None, 128, 1, stride=1, **init),
+            conv11_2=L.Convolution2D(None, 256, 3, stride=1, **init),
 
-            multibox=MultiBox(n_class, n_anchors=n_anchors),
+            multibox=MultiBox(n_class, n_anchors=n_anchors, init=init),
         )
         self.train = False
 
