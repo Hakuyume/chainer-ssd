@@ -25,8 +25,6 @@ if __name__ == '__main__':
     parser.add_argument('--resume')
     args = parser.parse_args()
 
-    size = 300
-
     multibox_encoder = MultiBoxEncoder(
         n_scale=6,
         variance=(0.1, 0.2),
@@ -45,7 +43,7 @@ if __name__ == '__main__':
 
     train = SSDLoader(
         VOCDataset(args.root, [t.split('-') for t in args.train]),
-        size,
+        model.insize,
         multibox_encoder)
 
     train_iter = chainer.iterators.MultiprocessIterator(

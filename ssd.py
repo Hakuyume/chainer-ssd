@@ -16,6 +16,8 @@ def normalize_2d(x, eps=1e-05):
 
 class SSD300(chainer.Chain):
 
+    insize = 300
+
     def __init__(self, n_class, n_anchors):
         init = {
             'initialW': initializers.GlorotUniform(),
