@@ -17,7 +17,10 @@ def normalize_2d(x, eps=1e-05):
 class SSD300(chainer.Chain):
 
     def __init__(self, n_class, n_anchors):
-        init = {'initial_bias': initializers.constant.Zero()}
+        init = {
+            'initialW': initializers.GlorotUniform(),
+            'initial_bias': initializers.constant.Zero(),
+        }
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
