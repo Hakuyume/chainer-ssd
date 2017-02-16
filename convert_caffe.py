@@ -3,6 +3,7 @@
 import argparse
 import numpy as np
 
+import chainer
 from chainer import serializers
 from chainer.links.caffe import CaffeFunction
 
@@ -43,7 +44,9 @@ if __name__ == '__main__':
     model.conv7.copyparams(caffe_model.fc7)
 
     if args.baseonly:
-        model(np.empty((1, 3, model.insize, model.insize), dtype=np.float32))
+        model(chainer.Variable(
+            np.empty((1, 3, model.insize, model.insize), dtype=np.float32),
+            volatile=True))
     else:
         model.conv8_1.copyparams(caffe_model.conv6_1)
         model.conv8_2.copyparams(caffe_model.conv6_2)

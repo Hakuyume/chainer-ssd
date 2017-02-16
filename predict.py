@@ -4,6 +4,7 @@ import argparse
 import cv2
 import numpy as np
 
+import chainer
 from chainer import serializers
 
 import config
@@ -34,7 +35,7 @@ if __name__ == '__main__':
     x = x.transpose(2, 0, 1)
     x = x[np.newaxis]
 
-    loc, conf = model(x)
+    loc, conf = model(chainer.Variable(x, volatile=True))
     boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
 
     img = src.copy()
