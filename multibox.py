@@ -6,6 +6,8 @@ from chainer import cuda
 import chainer.links as L
 import chainer.functions as F
 
+import rect
+
 
 class MultiBox(chainer.Chain):
 
@@ -128,20 +130,11 @@ class MultiBoxEncoder:
                 np.empty(self.default_boxes.shape, dtype=np.float32),
                 np.zeros(self.default_boxes.shape[:1], dtype=np.int32))
 
-        lt = np.maximum(
-            (self.default_boxes[:, :2] -
-             self.default_boxes[:, 2:] / 2)[:, np.newaxis],
-            boxes[:, :2])
-        rb = np.minimum(
-            (self.default_boxes[:, :2] +
-             self.default_boxes[:, 2:] / 2)[:, np.newaxis],
-            boxes[:, 2:])
-
-        area_i = np.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
-        area_defaultboxes = np.prod(self.default_boxes[:, 2:], axis=1)
-        area_boxes = np.prod(boxes[:, 2:] - boxes[:, :2], axis=1)
-        iou = area_i / (area_defaultboxes[:, np.newaxis] + area_boxes - area_i)
-
+        iou = rect.iou(
+            np.hstack((
+                self.default_boxes[:, :2] - self.default_boxes[:, 2:] / 2,
+                self.default_boxes[:, :2] + self.default_boxes[:, 2:] / 2)),
+            boxes)
         gt_idx = iou.argmax(axis=1)
         iou = iou.max(axis=1)
         boxes = boxes[gt_idx]
@@ -170,3 +163,16 @@ class MultiBoxEncoder:
         conf = conf[:, 1:]
 
         return boxes, conf
+
+    def non_maximum_suppression(self, boxes, conf, threshold):
+        cls = conf.argmax(axis=1)
+        score = conf.max(axis=1)
+
+        selected = np.zeros(cls.shape, dtype=bool)
+        for i in score.argsort()[::-1]:
+            box = rect.Rect.LTRB(*boxes[i])
+            iou = rect.iou(boxes[np.newaxis, i], boxes[selected])
+            if (iou >= threshold).any():
+                continue
+            selected[i] = True
+            yield box, cls[i], score[i]

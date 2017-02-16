@@ -1,3 +1,16 @@
+import numpy as np
+
+
+def iou(a, b):
+    lt = np.maximum(a[:, np.newaxis, :2], b[:, :2])
+    rb = np.minimum(a[:, np.newaxis, 2:], b[:, 2:])
+
+    area_i = np.prod(rb - lt, axis=2) * (lt < rb).all(axis=2)
+    area_a = np.prod(a[:, 2:] - a[:, :2], axis=1)
+    area_b = np.prod(b[:, 2:] - b[:, :2], axis=1)
+    return area_i / (area_a[:, np.newaxis] + area_b - area_i)
+
+
 class Rect(tuple):
     __slots__ = list()
 
@@ -56,9 +69,11 @@ class Rect(tuple):
         else:
             return None
 
-    def scale(self, kx, ky=None):
-        if ky is None:
-            ky = kx
+    def __mul__(self, k):
+        try:
+            kx, ky = k
+        except ValueError:
+            kx, ky = k, k
         return Rect.LTRB(
             self.left * kx,
             self.top * ky,

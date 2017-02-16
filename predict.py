@@ -39,17 +39,11 @@ if __name__ == '__main__':
     boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
 
     img = src.copy()
-    selected = set()
-    for i in conf.max(axis=1).argsort()[::-1]:
-        box = Rect.LTRB(*boxes[i]).scale(*img.shape[:2][::-1])
-        if len(selected) > 0:
-            iou = max(box.iou(s) for s in selected)
-            if iou > 0.45:
-                continue
-        selected.add(box)
-
-        if conf[i].max() < 0.9:
+    nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
+    for box, cls, score in nms:
+        if score < 0.9:
             break
+        box *= (img.shape[1::-1])
 
         cv2.rectangle(
             img,
@@ -58,7 +52,7 @@ if __name__ == '__main__':
             (0, 0, 255),
             3)
 
-        name = voc.names[conf[i].argmax()]
+        name = voc.names[cls]
         (w, h), b = cv2.getTextSize(name, cv2.FONT_HERSHEY_PLAIN, 1, 1)
         cv2.rectangle(
             img,
