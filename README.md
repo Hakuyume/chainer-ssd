@@ -10,16 +10,20 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 - OpenCV 3
 
 ## Usage
+
 ### Testing
+
 #### 1\. Download pre-traind Caffe model from https://github.com/weiliu89/caffe/tree/ssd#models
 ```
 curl -LO http://www.cs.unc.edu/%7Ewliu/projects/SSD/models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 ```
+
 #### 2\. Convert weights
 ```
 python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
 ```
+
 #### 3\. Test
 ```
 python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
@@ -35,14 +39,17 @@ python3 predict.py ssd300.npz image.jpg
 ![result](result_converted.jpg "result")
 
 ### Training (on going)
+
 #### 1\. Download pre-trained VGG16 model (fc reduced) from https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6
 ```
 curl -LO http://cs.unc.edu/~wliu/projects/ParseNet/VGG_ILSVRC_16_layers_fc_reduced.caffemodel
 ```
+
 #### 2\. Convert weights
 ```
 python3 convert_caffe.py --baseonly VGG_ILSVRC_16_layers_fc_reduced.caffemodel vgg16.npz
 ```
+
 #### 3\. Download VOC dataset
 ```
 curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtrainval_06-Nov-2007.tar
@@ -50,6 +57,7 @@ curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.
 tar xf VOCtrainval_06-Nov-2007.tar
 tar xf VOCtrainval_11-May-2012.tar
 ```
+
 #### 4\. Train
 ```
 python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
