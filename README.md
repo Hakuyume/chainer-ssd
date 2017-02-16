@@ -22,6 +22,13 @@ python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_S
 ```
 #### 3\. Test
 ```
+python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
+(comp4_det_test_*.txt will be generated)
+```
+With VOC2007 test, the mAP was 77.8% .
+
+#### 4.\ Or apply to an image
+```
 python3 predict.py ssd300.npz image.jpg
 (press 'q' to exit)
 ```
@@ -50,7 +57,7 @@ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [-
 
 ## ToDo
 - Add data augmentation
-- Evaluate converted/trained models
+- Evaluate trained models
 
 ## References
 + Liu, Wei, et al. "SSD: Single shot multibox detector." ECCV2016.
