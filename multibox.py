@@ -67,17 +67,19 @@ class MultiBox(chainer.Chain):
         if xp.logical_not(pos).all():
             return 0, 0
 
+        zero = xp.zeros(pos.shape, dtype=np.float32)
+
         x_loc = F.reshape(x_loc, (-1, 4))
         t_loc = F.reshape(t_loc, (-1, 4))
         loss_loc = F.huber_loss(x_loc, t_loc, 1)
-        loss_loc = loss_loc[pos]
+        loss_loc = F.where(pos, loss_loc, zero)
         loss_loc = F.sum(loss_loc) / pos.sum()
 
         hard_neg = self.mine_hard_negative(x_conf, t_conf).flatten()
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
         t_conf = F.flatten(t_conf)
         loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
-        loss_conf = loss_conf[xp.logical_or(pos, hard_neg)]
+        loss_conf = F.where(xp.logical_or(pos, hard_neg), loss_conf, zero)
         loss_conf = F.sum(loss_conf) / pos.sum()
 
         return loss_loc, loss_conf
