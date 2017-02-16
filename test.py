@@ -54,7 +54,7 @@ if __name__ == '__main__':
         aspect_ratios=model.aspect_ratios,
         variance=config.variance)
 
-    dataset = VOCDataset(args.root, [t.split('-') for t in args.train])
+    dataset = VOCDataset(args.root, [t.split('-') for t in args.test])
 
     info = list()
     batch = list()
