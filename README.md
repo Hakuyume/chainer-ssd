@@ -47,12 +47,6 @@ tar xf VOCtrainval_11-May-2012.tar
 ```
 python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
-#### 5\. Test
-```
-python3 predict.py result/model_iter_20000 image.jpg
-(press 'q' to exit)
-```
-![result](result_trained.jpg "result (iter = 20000)")
 
 ## ToDo
 - Add data augmentation
