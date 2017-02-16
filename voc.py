@@ -43,6 +43,9 @@ class VOCDataset:
     def __len__(self):
         return len(self.images)
 
+    def name(self, i):
+        return self.images[i][1]
+
     def image(self, i):
         return cv2.imread(
             os.path.join(
