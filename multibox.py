@@ -17,7 +17,7 @@ class MultiBox(chainer.Chain):
 
         self.n_class = n_class
         for ar in aspect_ratios:
-            n = len(ar) * 2
+            n = (len(ar) + 1) * 2
             self.loc.add_link(L.Convolution2D(
                 None, n * 4, 3, stride=1, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
