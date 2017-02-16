@@ -47,7 +47,7 @@ class VOCDataset:
         image = cv2.imread(
             os.path.join(
                 self.images[i][0], 'JPEGImages', self.images[i][1] + '.jpg'),
-            cv2.IMREAD_COLOR).astype(np.float32)
+            cv2.IMREAD_COLOR)
 
         boxes = list()
         classes = list()

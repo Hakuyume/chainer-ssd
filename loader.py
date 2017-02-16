@@ -68,7 +68,7 @@ class SSDLoader(chainer.dataset.DatasetMixin):
         image, boxes, classes = self.augment(image, boxes, classes)
 
         h, w, _ = image.shape
-        image = cv2.resize(image, (self.size, self.size))
+        image = cv2.resize(image, (self.size, self.size)).astype(np.float32)
         image -= self.mean
         image = image.transpose(2, 0, 1)
         boxes[:, 0::2] /= w
