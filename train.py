@@ -9,6 +9,7 @@ from chainer.training import extensions
 
 from ssd import SSD300
 from multibox import MultiBoxEncoder
+from loader import SSDLoader
 from voc import VOCDataset
 
 
@@ -42,8 +43,10 @@ if __name__ == '__main__':
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    train = VOCDataset(
-        args.root, [t.split('-') for t in args.train], size, multibox_encoder)
+    train = SSDLoader(
+        VOCDataset(args.root, [t.split('-') for t in args.train]),
+        size,
+        multibox_encoder)
 
     train_iter = chainer.iterators.MultiprocessIterator(
         train, args.batchsize, n_processes=args.loaderjob)
