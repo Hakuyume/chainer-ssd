@@ -48,8 +48,10 @@ if __name__ == '__main__':
             boxes, conf = multibox_encoder.decode(loc, conf)
             nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
             for box, cls, score in nms:
-                box *= size
+                if score < 0.01:
+                    break
 
+                box *= size
                 filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
                 with open(filename, mode='a') as f:
                     print(
