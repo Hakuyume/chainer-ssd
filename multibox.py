@@ -9,15 +9,15 @@ import chainer.functions as F
 
 class MultiBox(chainer.Chain):
 
-    def __init__(self, n_class, n_anchors, init=dict()):
+    def __init__(self, n_class, aspect_ratios, init=dict()):
         super().__init__(
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )
 
         self.n_class = n_class
-
-        for n in n_anchors:
+        for ar in aspect_ratios:
+            n = len(ar) * 2
             self.loc.add_link(L.Convolution2D(
                 None, n * 4, 3, stride=1, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
@@ -87,13 +87,13 @@ class MultiBox(chainer.Chain):
 
 class MultiBoxEncoder:
 
-    def __init__(self, n_scale, aspect_ratios, variance, grids):
+    def __init__(self, grids, aspect_ratios, variance):
         self.aspect_ratios = aspect_ratios
         self.variance = variance
 
         size = 300
         min_ratio, max_ratio = 20, 90
-        step = int((max_ratio - min_ratio) / (n_scale - 2))
+        step = int((max_ratio - min_ratio) / (len(grids) - 2))
         min_sizes = [size * 10 // 100]
         max_sizes = [size * 20 // 100]
         for ratio in range(min_ratio, max_ratio + 1, step):
@@ -101,7 +101,7 @@ class MultiBoxEncoder:
             max_sizes.append(size * (ratio + step) // 100)
 
         boxes = list()
-        for k in range(n_scale):
+        for k in range(len(grids)):
             for v, u in itertools.product(range(grids[k]), repeat=2):
                 cx = (u + 0.5) / grids[k]
                 cy = (v + 0.5) / grids[k]

@@ -17,8 +17,9 @@ def normalize_2d(x, eps=1e-05):
 class SSD300(chainer.Chain):
 
     insize = 300
+    grids = (38, 19, 10, 5, 3, 1)
 
-    def __init__(self, n_class, n_anchors):
+    def __init__(self, n_class, aspect_ratios):
         init = {
             'initialW': initializers.GlorotUniform(),
             'initial_bias': initializers.constant.Zero(),
@@ -42,8 +43,10 @@ class SSD300(chainer.Chain):
             conv11_1=L.Convolution2D(None, 128, 1, stride=1, **init),
             conv11_2=L.Convolution2D(None, 256, 3, stride=1, **init),
 
-            multibox=MultiBox(n_class, n_anchors=n_anchors, init=init),
+            multibox=MultiBox(n_class, aspect_ratios=aspect_ratios, init=init),
         )
+        self.n_class = n_class
+        self.aspect_ratios = aspect_ratios
         self.train = False
 
     def __call__(self, x, t_loc=None, t_conf=None):

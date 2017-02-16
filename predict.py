@@ -6,6 +6,7 @@ import numpy as np
 
 from chainer import serializers
 
+import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
 from rect import Rect
@@ -18,16 +19,13 @@ if __name__ == '__main__':
     parser.add_argument('image')
     args = parser.parse_args()
 
-    multibox_encoder = MultiBoxEncoder(
-        n_scale=6,
-        variance=(0.1, 0.2),
-        grids=(38, 19, 10, 5, 3, 1),
-        aspect_ratios=((2,), (2, 3), (2, 3), (2, 3), (2,), (2,)))
-
-    model = SSD300(
-        n_class=20,
-        n_anchors=multibox_encoder.n_anchors)
+    model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
     serializers.load_npz(args.model, model)
+
+    multibox_encoder = MultiBoxEncoder(
+        grids=model.grids,
+        aspect_ratios=model.aspect_ratios,
+        variance=config.variance)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
 
