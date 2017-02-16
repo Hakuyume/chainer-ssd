@@ -15,25 +15,6 @@ import voc
 from voc import VOCDataset
 
 
-def dump_result(name, size, loc, conf):
-    print(name)
-
-    xp = cuda.get_array_module(loc)
-    if xp is not np:
-        loc = xp.asnumpy(loc)
-        conf = xp.asnumpy(conf)
-
-    boxes, conf = multibox_encoder.decode(loc, conf)
-    nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
-    for box, cls, score in nms:
-        box *= size
-
-        filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
-        with open(filename, mode='a') as f:
-            print(
-                name, score, box.left, box.top, box.right, box.bottom, file=f)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
@@ -48,11 +29,32 @@ if __name__ == '__main__':
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
+        xp = cuda.cupy
+    else:
+        xp = np
 
     multibox_encoder = MultiBoxEncoder(
         grids=model.grids,
         aspect_ratios=model.aspect_ratios,
         variance=config.variance)
+
+    def dump_result(name, size, loc, conf):
+        print(name)
+
+        if xp is not np:
+            loc = xp.asnumpy(loc)
+            conf = xp.asnumpy(conf)
+
+            boxes, conf = multibox_encoder.decode(loc, conf)
+            nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
+            for box, cls, score in nms:
+                box *= size
+
+                filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
+                with open(filename, mode='a') as f:
+                    print(
+                        name, score, box.left, box.top, box.right, box.bottom,
+                        file=f)
 
     dataset = VOCDataset(args.root, [t.split('-') for t in args.test])
 
@@ -67,13 +69,13 @@ if __name__ == '__main__':
         batch.append(x)
 
         if len(batch) == args.batchsize:
-            loc, conf = model(chainer.Variable(np.array(batch), volatile=True))
+            loc, conf = model(chainer.Variable(xp.array(batch), volatile=True))
             for i, (name, size) in enumerate(info):
                 dump_result(name, size, loc.data[i], conf.data[i])
             info = list()
             batch = list()
 
     if len(batch) > 0:
-        loc, conf = model(chainer.Variable(np.array(batch), volatile=True))
+        loc, conf = model(chainer.Variable(xp.array(batch), volatile=True))
         for i, (name, size) in enumerate(info):
             dump_result(name, size, loc.data[i], conf.data[i])
