@@ -31,7 +31,7 @@ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 ```
 With VOC2007 test, the mAP was 77.8% .
 
-#### 4.\ Or apply to an image
+#### 4\. Or apply to an image
 ```
 python3 predict.py ssd300.npz image.jpg
 (press 'q' to exit)
