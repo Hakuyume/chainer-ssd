@@ -24,14 +24,16 @@ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
 python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
 ```
 
-#### 3\. Test
+#### 3\.a Test with VOC dataset
 ```
+curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
+tar xf VOCtest_06-Nov-2007.tar
 python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 (comp4_det_test_*.txt will be generated)
 ```
-With VOC2007 test, the mAP was 77.8% .
+In my experiment, the mAP was 77.8% .
 
-#### 4\. Or apply to an image
+#### 3\.b Test with an image
 ```
 python3 predict.py ssd300.npz image.jpg
 (press 'q' to exit)
