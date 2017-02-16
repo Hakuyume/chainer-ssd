@@ -10,7 +10,6 @@ from chainer import serializers
 import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
-from rect import Rect
 import voc
 
 
