@@ -171,7 +171,9 @@ class MultiBoxEncoder:
         selected = np.zeros(cls.shape, dtype=bool)
         for i in score.argsort()[::-1]:
             box = rect.Rect.LTRB(*boxes[i])
-            iou = rect.iou(boxes[np.newaxis, i], boxes[selected])
+            iou = rect.iou(
+                boxes[np.newaxis, i],
+                boxes[np.logical_and(selected, cls == cls[i])])
             if (iou >= threshold).any():
                 continue
             selected[i] = True
