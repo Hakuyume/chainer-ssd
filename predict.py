@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     loc, conf = model(x)
     boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
-    conf = conf[:, 1:]
 
     img = src.copy()
     selected = set()
