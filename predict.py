@@ -30,7 +30,7 @@ if __name__ == '__main__':
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
 
     x = cv2.resize(src, (model.insize, model.insize)).astype(np.float32)
-    x -= (103.939, 116.779, 123.68)
+    x -= config.mean
     x = x.transpose(2, 0, 1)
     x = x[np.newaxis]
 

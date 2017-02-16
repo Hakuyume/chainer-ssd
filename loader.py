@@ -7,11 +7,12 @@ import chainer
 
 class SSDLoader(chainer.dataset.DatasetMixin):
 
-    def __init__(self, dataset, size, encoder):
+    def __init__(self, dataset, size, mean, encoder):
         super().__init__()
 
         self.dataset = dataset
         self.size = size
+        self.mean = mean
         self.encoder = encoder
 
     def __len__(self):
@@ -68,7 +69,7 @@ class SSDLoader(chainer.dataset.DatasetMixin):
 
         h, w, _ = image.shape
         image = cv2.resize(image, (self.size, self.size))
-        image -= (103.939, 116.779, 123.68)
+        image -= self.mean
         image = image.transpose(2, 0, 1)
         boxes[:, 0::2] /= w
         boxes[:, 1::2] /= h

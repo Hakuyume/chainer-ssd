@@ -42,6 +42,7 @@ if __name__ == '__main__':
     train = SSDLoader(
         VOCDataset(args.root, [t.split('-') for t in args.train]),
         model.insize,
+        config.mean,
         multibox_encoder)
 
     train_iter = chainer.iterators.MultiprocessIterator(
