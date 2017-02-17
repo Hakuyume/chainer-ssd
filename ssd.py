@@ -27,9 +27,9 @@ class SSD300(chainer.Chain):
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
-            conv5_1=L.Convolution2D(None, 512, 3, pad=1, **init),
-            conv5_2=L.Convolution2D(None, 512, 3, pad=1, **init),
-            conv5_3=L.Convolution2D(None, 512, 3, pad=1, **init),
+            conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
+            conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
+            conv5_3=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
 
             conv6=L.DilatedConvolution2D(
                 None, 1024, 3, pad=6, dilate=6, **init),
