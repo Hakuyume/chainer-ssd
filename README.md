@@ -31,7 +31,6 @@ $ tar xf VOCtest_06-Nov-2007.tar
 $ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 (comp4_det_test_*.txt will be generated)
 ```
-In my experiment, the mAP was 77.8% .
 
 #### 3\.b Test with an image
 ```
