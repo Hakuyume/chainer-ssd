@@ -27,28 +27,25 @@ class SSD300(chainer.Chain):
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
-            conv5_1=L.Convolution2D(
-                None, 512, 3, stride=1, pad=1, **init),
-            conv5_2=L.Convolution2D(
-                None, 512, 3, stride=1, pad=1, **init),
-            conv5_3=L.Convolution2D(
-                None, 512, 3, stride=1, pad=1, **init),
+            conv5_1=L.Convolution2D(None, 512, 3, pad=1, **init),
+            conv5_2=L.Convolution2D(None, 512, 3, pad=1, **init),
+            conv5_3=L.Convolution2D(None, 512, 3, pad=1, **init),
 
             conv6=L.DilatedConvolution2D(
-                None, 1024, 3, stride=1, pad=6, dilate=6, **init),
-            conv7=L.Convolution2D(None, 1024, 1, stride=1, **init),
+                None, 1024, 3, pad=6, dilate=6, **init),
+            conv7=L.Convolution2D(None, 1024, 1, **init),
 
-            conv8_1=L.Convolution2D(None, 256, 1, stride=1, **init),
+            conv8_1=L.Convolution2D(None, 256, 1, **init),
             conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1, **init),
 
-            conv9_1=L.Convolution2D(None, 128, 1, stride=1, **init),
+            conv9_1=L.Convolution2D(None, 128, 1, **init),
             conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
 
-            conv10_1=L.Convolution2D(None, 128, 1, stride=1, **init),
-            conv10_2=L.Convolution2D(None, 256, 3, stride=1, **init),
+            conv10_1=L.Convolution2D(None, 128, 1, **init),
+            conv10_2=L.Convolution2D(None, 256, 3, **init),
 
-            conv11_1=L.Convolution2D(None, 128, 1, stride=1, **init),
-            conv11_2=L.Convolution2D(None, 256, 3, stride=1, **init),
+            conv11_1=L.Convolution2D(None, 128, 1, **init),
+            conv11_2=L.Convolution2D(None, 256, 3, **init),
 
             multibox=MultiBox(n_class, aspect_ratios=aspect_ratios, init=init),
         )
@@ -61,7 +58,7 @@ class SSD300(chainer.Chain):
 
         h = self.base(x, layers=['conv4_3'])['conv4_3']
         hs.append(normalize_2d(h) * 20)
-        h = F.max_pooling_2d(h, 2, stride=2)
+        h = F.max_pooling_2d(h, 2)
 
         h = F.relu(self.conv5_1(h))
         h = F.relu(self.conv5_2(h))
