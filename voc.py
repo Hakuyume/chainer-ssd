@@ -55,6 +55,7 @@ class VOCDataset:
     def annotation(self, i):
         boxes = list()
         classes = list()
+        difficulties = list()
         tree = ET.parse(os.path.join(
             self.images[i][0], 'Annotations', self.images[i][1] + '.xml'))
         for child in tree.getroot():
@@ -65,6 +66,8 @@ class VOCDataset:
                 float(bndbox.find(t).text)
                 for t in ('xmin', 'ymin', 'xmax', 'ymax')))
             classes.append(names.index(child.find('name').text))
+            difficulties.append(bool(int(child.find('difficult').text)))
         boxes = np.array(boxes)
         classes = np.array(classes)
-        return boxes, classes
+        difficulties = np.array(difficulties)
+        return boxes, classes, difficulties

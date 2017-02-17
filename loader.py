@@ -65,7 +65,7 @@ class SSDLoader(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         image = self.dataset.image(i)
-        boxes, classes = self.dataset.annotation(i)
+        boxes, classes, _ = self.dataset.annotation(i)
         image, boxes, classes = self.augment(image, boxes, classes)
 
         h, w, _ = image.shape
