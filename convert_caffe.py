@@ -36,9 +36,9 @@ if __name__ == '__main__':
     model.base.conv4_2.copyparams(caffe_model.conv4_2)
     model.base.conv4_3.copyparams(caffe_model.conv4_3)
 
-    model.base.conv5_1.copyparams(caffe_model.conv5_1)
-    model.base.conv5_2.copyparams(caffe_model.conv5_2)
-    model.base.conv5_3.copyparams(caffe_model.conv5_3)
+    model.conv5_1.copyparams(caffe_model.conv5_1)
+    model.conv5_2.copyparams(caffe_model.conv5_2)
+    model.conv5_3.copyparams(caffe_model.conv5_3)
 
     model.conv6.copyparams(caffe_model.fc6)
     model.conv7.copyparams(caffe_model.fc7)

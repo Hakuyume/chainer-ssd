@@ -27,6 +27,13 @@ class SSD300(chainer.Chain):
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
+            conv5_1=L.Convolution2D(
+                None, 512, 3, stride=1, pad=1, **init),
+            conv5_2=L.Convolution2D(
+                None, 512, 3, stride=1, pad=1, **init),
+            conv5_3=L.Convolution2D(
+                None, 512, 3, stride=1, pad=1, **init),
+
             conv6=L.DilatedConvolution2D(
                 None, 1024, 3, stride=1, pad=6, dilate=6, **init),
             conv7=L.Convolution2D(None, 1024, 1, stride=1, **init),
@@ -52,9 +59,13 @@ class SSD300(chainer.Chain):
     def __call__(self, x, t_loc=None, t_conf=None):
         hs = list()
 
-        layers = self.base(x, layers=['conv4_3', 'conv5_3'])
-        hs.append(normalize_2d(layers['conv4_3']) * 20)
-        h = layers['conv5_3']
+        h = self.base(x, layers=['conv4_3'])['conv4_3']
+        hs.append(normalize_2d(h) * 20)
+        h = F.max_pooling_2d(h, 2, stride=2)
+
+        h = F.relu(self.conv5_1(h))
+        h = F.relu(self.conv5_2(h))
+        h = F.relu(self.conv5_3(h))
         h = F.max_pooling_2d(h, 3, stride=1, pad=1)
 
         h = F.relu(self.conv6(h))
