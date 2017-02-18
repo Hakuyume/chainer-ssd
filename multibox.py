@@ -45,7 +45,7 @@ class MultiBox(chainer.Chain):
         return y_loc, y_conf
 
     def mine_hard_negative(self, x_conf, t_conf):
-        xp = cuda.get_array_module(x_conf.data)
+        xp = self.xp
 
         if xp is np:
             x_conf = x_conf.data
@@ -63,7 +63,7 @@ class MultiBox(chainer.Chain):
         return xp.array(hard_neg)
 
     def loss(self, x_loc, x_conf, t_loc, t_conf):
-        xp = cuda.get_array_module(x_loc.data)
+        xp = self.xp
         pos = (t_conf.data > 0).flatten()
         if xp.logical_not(pos).all():
             return 0, 0
