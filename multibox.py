@@ -110,10 +110,6 @@ class MultiBoxEncoder:
                     boxes.append((cx, cy, s / np.sqrt(ar), s * np.sqrt(ar)))
         self.default_boxes = np.array(boxes)
 
-    @property
-    def n_anchors(self):
-        return tuple((len(ar) + 1) * 2 for ar in self.aspect_ratios)
-
     def encode(self, boxes, classes, threshold=0.5):
         if len(boxes) == 0:
             return (
