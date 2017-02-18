@@ -10,9 +10,13 @@ from multibox import MultiBox
 
 class Normalize(chainer.Link):
 
-    def __init__(self, n_channel, eps=1e-5):
-        super().__init__(scale=(n_channel))
+    def __init__(self, n_channel, initial=0, eps=1e-5):
+        super().__init__()
         self.eps = eps
+        self.add_param(
+            'scale',
+            n_channel,
+            initializer=initializers._get_initializer(initial))
 
     def __call__(self, x):
         norm = F.sqrt(F.sum(F.square(x), axis=1) + self.eps)
@@ -35,7 +39,7 @@ class SSD300(chainer.Chain):
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
 
-            norm4=Normalize(512),
+            norm4=Normalize(512, initial=initializers.Constant(20)),
 
             conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
             conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
