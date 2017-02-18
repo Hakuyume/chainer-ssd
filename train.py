@@ -23,7 +23,8 @@ class CustomHook(object):
 
     def kernel(self):
         return chainer.cuda.elementwise(
-            'T g, T p, T lr, T decay', 'T g', 'g = lr * g + decay * p',
+            'T p, T lr, T decay', 'T g',
+            'g = lr * g + decay * p',
             'custom_hook')
 
     def __call__(self, opt):
@@ -39,7 +40,7 @@ class CustomHook(object):
                 if int(dev) == -1:
                     g = lr * g + decay * p
                 else:
-                    self.kernel()(g, p, lr, decay)
+                    self.kernel()(p, lr, decay, g)
 
 
 if __name__ == '__main__':
