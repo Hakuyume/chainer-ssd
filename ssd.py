@@ -30,7 +30,7 @@ class SSD300(chainer.Chain):
     def __init__(self, n_class, aspect_ratios):
         init = {
             'initialW': initializers.GlorotUniform(),
-            'initial_bias': initializers.constant.Zero(),
+            'initial_bias': initializers.Zero(),
         }
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
