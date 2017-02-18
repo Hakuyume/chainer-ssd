@@ -73,6 +73,7 @@ if __name__ == '__main__':
             1,
             (255, 255, 255))
 
+    print('(press \'q\' to exit)')
     while True:
         cv2.imshow('result', img)
         if cv2.waitKey() == ord('q'):
