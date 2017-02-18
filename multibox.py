@@ -158,7 +158,7 @@ class MultiBoxEncoder:
         boxes[:, :2] -= boxes[:, 2:] / 2
         boxes[:, 2:] += boxes[:, :2]
         conf = np.exp(conf)
-        conf /= conf.sum(axis=1)[:, np.newaxis]
+        conf /= conf.sum(axis=1, keepdims=True)
         conf = conf[:, 1:]
 
         return boxes, conf
