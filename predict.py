@@ -24,6 +24,8 @@ if __name__ == '__main__':
 
     multibox_encoder = MultiBoxEncoder(
         grids=model.grids,
+        steps=config.steps,
+        sizes=config.sizes,
         aspect_ratios=model.aspect_ratios,
         variance=config.variance)
 
