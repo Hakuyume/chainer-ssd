@@ -47,18 +47,15 @@ if __name__ == '__main__':
             loc = xp.asnumpy(loc)
             conf = xp.asnumpy(conf)
 
-            boxes, conf = multibox_encoder.decode(loc, conf)
-            nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
-            for box, cls, score in nms:
-                if score < 0.01:
-                    break
-
-                box *= size
-                filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
-                with open(filename, mode='a') as f:
-                    print(
-                        name, score, box.left, box.top, box.right, box.bottom,
-                        file=f)
+        boxes, conf = multibox_encoder.decode(loc, conf)
+        nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45, 0.01)
+        for box, cls, score in nms:
+            box *= size
+            filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
+            with open(filename, mode='a') as f:
+                print(
+                    name, score, box.left, box.top, box.right, box.bottom,
+                    file=f)
 
     dataset = VOCDataset(args.root, [t.split('-') for t in args.test])
 
