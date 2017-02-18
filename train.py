@@ -14,6 +14,34 @@ from loader import SSDLoader
 from voc import VOCDataset
 
 
+class CustomHook(object):
+
+    name = 'CustomHook'
+
+    def __init__(self, decay):
+        self.decay = decay
+
+    def kernel(self):
+        return chainer.cuda.elementwise(
+            'T g, T p, T lr, T decay', 'T g', 'g = lr * g + decay * p',
+            'custom_hook')
+
+    def __call__(self, opt):
+        for param in opt.target.params():
+            if param.name == 'b':
+                lr = 2
+                decay = 0
+            else:
+                lr = 1
+                decay = self.decay
+            p, g = param.data, param.grad
+            with chainer.cuda.get_device(p) as dev:
+                if int(dev) == -1:
+                    g = lr * g + decay * p
+                else:
+                    self.kernel()(g, p, lr, decay)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
@@ -52,7 +80,7 @@ if __name__ == '__main__':
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(model)
-    optimizer.add_hook(chainer.optimizer.WeightDecay(0.0005))
+    optimizer.add_hook(CustomHook(0.0005))
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
