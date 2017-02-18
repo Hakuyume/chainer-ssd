@@ -50,7 +50,8 @@ if __name__ == '__main__':
     model.base.conv4_2.copyparams(caffe_model.conv4_2)
     model.base.conv4_3.copyparams(caffe_model.conv4_3)
 
-    model.norm4.copyparams(caffe_model.conv4_3_norm)
+    if not args.baseonly:
+        model.norm4.copyparams(caffe_model.conv4_3_norm)
 
     model.conv5_1.copyparams(caffe_model.conv5_1)
     model.conv5_2.copyparams(caffe_model.conv5_2)
@@ -59,11 +60,7 @@ if __name__ == '__main__':
     model.conv6.copyparams(caffe_model.fc6)
     model.conv7.copyparams(caffe_model.fc7)
 
-    if args.baseonly:
-        model(chainer.Variable(
-            np.empty((1, 3, model.insize, model.insize), dtype=np.float32),
-            volatile=True))
-    else:
+    if not args.baseonly:
         model.conv8_1.copyparams(caffe_model.conv6_1)
         model.conv8_2.copyparams(caffe_model.conv6_2)
 
@@ -93,5 +90,10 @@ if __name__ == '__main__':
 
         model.multibox.loc[5].copyparams(caffe_model.conv9_2_mbox_loc)
         model.multibox.conf[5].copyparams(caffe_model.conv9_2_mbox_conf)
+
+    if args.baseonly:
+        model(chainer.Variable(
+            np.empty((1, 3, model.insize, model.insize), dtype=np.float32),
+            volatile=True))
 
     serializers.save_npz(args.target, model)
