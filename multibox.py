@@ -39,10 +39,10 @@ class MultiBox(chainer.Chain):
             h_conf = F.reshape(h_conf, (h_conf.shape[0], -1, self.n_class + 1))
             hs_conf.append(h_conf)
 
-        hs_loc = F.concat(hs_loc, axis=1)
-        hs_conf = F.concat(hs_conf, axis=1)
+        y_loc = F.concat(hs_loc, axis=1)
+        y_conf = F.concat(hs_conf, axis=1)
 
-        return hs_loc, hs_conf
+        return y_loc, y_conf
 
     def mine_hard_negative(self, x_conf, t_conf):
         xp = cuda.get_array_module(x_conf.data)
