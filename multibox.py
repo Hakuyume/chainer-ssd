@@ -163,17 +163,18 @@ class MultiBoxEncoder:
 
         return boxes, conf
 
-    def non_maximum_suppression(self, boxes, conf, threshold):
-        cls = conf.argmax(axis=1)
-        score = conf.max(axis=1)
-
-        selected = np.zeros(cls.shape, dtype=bool)
-        for i in score.argsort()[::-1]:
-            box = rect.Rect.LTRB(*boxes[i])
-            iou = rect.iou(
-                boxes[np.newaxis, i],
-                boxes[np.logical_and(selected, cls == cls[i])])
-            if (iou >= threshold).any():
-                continue
-            selected[i] = True
-            yield box, cls[i], score[i]
+    def non_maximum_suppression(
+            self, boxes, conf, nms_threshold, conf_threshold):
+        for cls in range(conf.shape[1]):
+            selected = np.zeros((conf.shape[0],), dtype=bool)
+            for i in conf[:, cls].argsort()[::-1]:
+                if conf[i, cls] < conf_threshold:
+                    break
+                box = rect.Rect.LTRB(*boxes[i])
+                iou = rect.iou(
+                    boxes[np.newaxis, i],
+                    boxes[selected])
+                if (iou >= nms_threshold).any():
+                    continue
+                selected[i] = True
+                yield box, cls, conf[i, cls]

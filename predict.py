@@ -38,18 +38,16 @@ if __name__ == '__main__':
     boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
 
     img = src.copy()
-    nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
-    for box, cls, score in nms:
-        if score < 0.01:
-            break
+    nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45, 0.01)
+    for box, cls, conf in nms:
         box *= img.shape[1::-1]
         box = box.astype(int)
 
         print(
-            cls + 1, score,
+            cls + 1, conf,
             box.left, box.top, box.right, box.bottom)
 
-        if score < 0.6:
+        if conf < 0.6:
             continue
 
         cv2.rectangle(
