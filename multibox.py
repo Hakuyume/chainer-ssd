@@ -44,23 +44,24 @@ class MultiBox(chainer.Chain):
 
         return y_loc, y_conf
 
-    def mine_hard_negative(self, x_conf, t_conf):
+    def mine_hard_negative(self, n, loss_conf, t_conf):
         xp = self.xp
 
         if xp is np:
-            x_conf = x_conf.data
+            loss_conf = loss_conf.data.copy()
             t_conf = t_conf.data
         else:
-            x_conf = xp.asnumpy(x_conf.data)
+            loss_conf = xp.asnumpy(loss_conf.data)
             t_conf = xp.asnumpy(t_conf.data)
 
-        score = np.exp(x_conf)
-        score = score[:, :, 1:].max(axis=2) / score.sum(axis=2)
-        score[t_conf > 0] = 0
-        rank = (-score).argsort(axis=1).argsort(axis=1)
+        t_conf = t_conf.reshape((n, -1))
+        loss_conf = loss_conf.reshape((n, -1))
+
+        loss_conf[t_conf > 0] = 0
+        rank = (-loss_conf).argsort(axis=1).argsort(axis=1)
         hard_neg = rank < (np.count_nonzero(t_conf, axis=1) * 3)[:, np.newaxis]
 
-        return xp.array(hard_neg)
+        return xp.array(hard_neg).flatten()
 
     def loss(self, x_loc, x_conf, t_loc, t_conf):
         xp = self.xp
@@ -74,10 +75,11 @@ class MultiBox(chainer.Chain):
         loss_loc = F.where(pos, loss_loc, xp.zeros_like(loss_loc.data))
         loss_loc = F.sum(loss_loc) / pos.sum()
 
-        hard_neg = self.mine_hard_negative(x_conf, t_conf).flatten()
+        n = t_conf.shape[0]
         x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
         t_conf = F.flatten(t_conf)
         loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
+        hard_neg = self.mine_hard_negative(n, loss_conf, t_conf)
         loss_conf = F.where(
             xp.logical_or(pos, hard_neg),
             loss_conf, xp.zeros_like(loss_conf.data))
