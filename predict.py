@@ -40,10 +40,17 @@ if __name__ == '__main__':
     img = src.copy()
     nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45)
     for box, cls, score in nms:
-        if score < 0.9:
+        if score < 0.01:
             break
         box *= img.shape[1::-1]
         box = box.astype(int)
+
+        print(
+            cls + 1, score,
+            box.left, box.top, box.right, box.bottom)
+
+        if score < 0.6:
+            continue
 
         cv2.rectangle(
             img,
