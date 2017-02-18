@@ -15,13 +15,13 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
 #### 1\. Download pre-traind Caffe model from https://github.com/weiliu89/caffe/tree/ssd#models
 ```
-$ curl -LO http://www.cs.unc.edu/%7Ewliu/projects/SSD/models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
-$ tar xf models_VGGNet_VOC0712Plus_SSD_300x300.tar.gz
+$ curl -LO http://www.cs.unc.edu/%7Ewliu/projects/SSD/models_VGGNet_VOC0712_SSD_300x300.tar.gz
+$ tar xf models_VGGNet_VOC0712_SSD_300x300.tar.gz
 ```
 
 #### 2\. Convert weights
 ```
-$ python3 convert_caffe.py models/VGGNet/VOC0712Plus/SSD_300x300/VGG_VOC0712Plus_SSD_300x300_iter_240000.caffemodel ssd300.npz
+$ python3 convert_caffe.py models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel ssd300.npz
 ```
 
 #### 3\.a Test with VOC dataset
@@ -34,7 +34,16 @@ $ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 
 #### 3\.b Test with an image
 ```
-$ python3 predict.py ssd300.npz image.jpg
+$ python3 predict.py ssd300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
+5 0.0130746 273 86 293 167
+5 0.0113749 140 208 195 261
+9 0.0211564 82 444 117 484
+9 0.0200858 3 27 343 492
+...
+15 0.985803 12 5 354 492
+15 0.0196945 273 95 294 173
+15 0.013401 274 92 319 184
+18 0.0143461 11 1 350 498
 (press 'q' to exit)
 ```
 ![result](result_converted.jpg "result")
