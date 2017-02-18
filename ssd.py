@@ -8,10 +8,18 @@ from chainer import initializers
 from multibox import MultiBox
 
 
-def normalize_2d(x, eps=1e-05):
-    norm = F.sqrt(F.sum(F.square(x), axis=1)) + eps
-    norm = F.broadcast_to(norm[:, np.newaxis], x.shape)
-    return x / norm
+class Normalize(chainer.Link):
+
+    def __init__(self, n_channel, eps=1e-5):
+        super().__init__(scale=(n_channel))
+        self.eps = eps
+
+    def __call__(self, x):
+        norm = F.sqrt(F.sum(F.square(x), axis=1) + self.eps)
+        norm = F.broadcast_to(norm[:, np.newaxis], x.shape)
+        scale = F.broadcast_to(self.scale[:, np.newaxis, np.newaxis], x.shape)
+
+        return x * scale / norm
 
 
 class SSD300(chainer.Chain):
@@ -26,6 +34,8 @@ class SSD300(chainer.Chain):
         }
         super().__init__(
             base=L.VGG16Layers(pretrained_model=None),
+
+            norm4=Normalize(512),
 
             conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
             conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
@@ -57,7 +67,7 @@ class SSD300(chainer.Chain):
         hs = list()
 
         h = self.base(x, layers=['conv4_3'])['conv4_3']
-        hs.append(normalize_2d(h) * 20)
+        hs.append(self.norm4(h))
         h = F.max_pooling_2d(h, 2)
 
         h = F.relu(self.conv5_1(h))

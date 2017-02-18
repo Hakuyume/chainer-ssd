@@ -4,11 +4,25 @@ import argparse
 import numpy as np
 
 import chainer
+import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
-from chainer.links.caffe import CaffeFunction
 
 import config
-from ssd import SSD300
+from ssd import SSD300, Normalize
+
+
+class CustomCaffeFunction(caffe.CaffeFunction):
+
+    def __init__(self, model_path):
+        super().__init__(model_path)
+
+    @caffe._layer('Normalize', None)
+    def _setup_normarize(self, layer):
+        blobs = layer.blobs
+        func = Normalize(caffe._get_num(blobs[0]))
+        func.scale.data[:] = np.array(blobs[0].data)
+
+        self.add_link(layer.name, func)
 
 
 if __name__ == '__main__':
@@ -19,7 +33,7 @@ if __name__ == '__main__':
     parser.set_defaults(baseonly=False)
     args = parser.parse_args()
 
-    caffe_model = CaffeFunction(args.source)
+    caffe_model = CustomCaffeFunction(args.source)
     model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
 
     model.base.conv1_1.copyparams(caffe_model.conv1_1)
@@ -35,6 +49,8 @@ if __name__ == '__main__':
     model.base.conv4_1.copyparams(caffe_model.conv4_1)
     model.base.conv4_2.copyparams(caffe_model.conv4_2)
     model.base.conv4_3.copyparams(caffe_model.conv4_3)
+
+    model.norm4.copyparams(caffe_model.conv4_3_norm)
 
     model.conv5_1.copyparams(caffe_model.conv5_1)
     model.conv5_2.copyparams(caffe_model.conv5_2)
