@@ -34,6 +34,9 @@ class Rect(tuple):
             center_x + width / 2,
             center_y + height / 2))
 
+    def astype(self, dtype):
+        return Rect(map(dtype, self))
+
     @property
     def left(self):
         return self[0]
