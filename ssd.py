@@ -37,8 +37,19 @@ class SSD300(chainer.Chain):
             'initial_bias': initializers.Zero(),
         }
         super().__init__(
-            base=L.VGG16Layers(pretrained_model=None),
+            conv1_1=L.Convolution2D(None, 64, 3, pad=1, **init),
+            conv1_2=L.Convolution2D(None, 64, 3, pad=1, **init),
 
+            conv2_1=L.Convolution2D(None, 128, 3, pad=1, **init),
+            conv2_2=L.Convolution2D(None, 128, 3, pad=1, **init),
+
+            conv3_1=L.Convolution2D(None, 256, 3, pad=1, **init),
+            conv3_2=L.Convolution2D(None, 256, 3, pad=1, **init),
+            conv3_3=L.Convolution2D(None, 256, 3, pad=1, **init),
+
+            conv4_1=L.Convolution2D(None, 512, 3, pad=1, **init),
+            conv4_2=L.Convolution2D(None, 512, 3, pad=1, **init),
+            conv4_3=L.Convolution2D(None, 512, 3, pad=1, **init),
             norm4=Normalize(512, initial=initializers.Constant(20)),
 
             conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
@@ -70,7 +81,22 @@ class SSD300(chainer.Chain):
     def __call__(self, x, t_loc=None, t_conf=None):
         hs = list()
 
-        h = self.base(x, layers=['conv4_3'])['conv4_3']
+        h = F.relu(self.conv1_1(x))
+        h = F.relu(self.conv1_2(h))
+        h = F.max_pooling_2d(h, 2)
+
+        h = F.relu(self.conv2_1(h))
+        h = F.relu(self.conv2_2(h))
+        h = F.max_pooling_2d(h, 2)
+
+        h = F.relu(self.conv3_1(h))
+        h = F.relu(self.conv3_2(h))
+        h = F.relu(self.conv3_3(h))
+        h = F.max_pooling_2d(h, 2)
+
+        h = F.relu(self.conv4_1(h))
+        h = F.relu(self.conv4_2(h))
+        h = F.relu(self.conv4_3(h))
         hs.append(self.norm4(h))
         h = F.max_pooling_2d(h, 2)
 

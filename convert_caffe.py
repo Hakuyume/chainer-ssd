@@ -36,19 +36,19 @@ if __name__ == '__main__':
     caffe_model = CustomCaffeFunction(args.source)
     model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
 
-    model.base.conv1_1.copyparams(caffe_model.conv1_1)
-    model.base.conv1_2.copyparams(caffe_model.conv1_2)
+    model.conv1_1.copyparams(caffe_model.conv1_1)
+    model.conv1_2.copyparams(caffe_model.conv1_2)
 
-    model.base.conv2_1.copyparams(caffe_model.conv2_1)
-    model.base.conv2_2.copyparams(caffe_model.conv2_2)
+    model.conv2_1.copyparams(caffe_model.conv2_1)
+    model.conv2_2.copyparams(caffe_model.conv2_2)
 
-    model.base.conv3_1.copyparams(caffe_model.conv3_1)
-    model.base.conv3_2.copyparams(caffe_model.conv3_2)
-    model.base.conv3_3.copyparams(caffe_model.conv3_3)
+    model.conv3_1.copyparams(caffe_model.conv3_1)
+    model.conv3_2.copyparams(caffe_model.conv3_2)
+    model.conv3_3.copyparams(caffe_model.conv3_3)
 
-    model.base.conv4_1.copyparams(caffe_model.conv4_1)
-    model.base.conv4_2.copyparams(caffe_model.conv4_2)
-    model.base.conv4_3.copyparams(caffe_model.conv4_3)
+    model.conv4_1.copyparams(caffe_model.conv4_1)
+    model.conv4_2.copyparams(caffe_model.conv4_2)
+    model.conv4_3.copyparams(caffe_model.conv4_3)
 
     if not args.baseonly:
         model.norm4.copyparams(caffe_model.conv4_3_norm)
