@@ -20,9 +20,13 @@ class SSDLoader(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         image = self.dataset.image(i)
+        h, w, _ = image.shape
         boxes, classes, _ = self.dataset.annotation(i)
 
-        h, w, _ = image.shape
+        if random.randrange(2):
+            image = image[:, ::-1]
+            boxes[:, 0::2] = w - boxes[:, 2::-2]
+
         image = cv2.resize(image, (self.size, self.size)).astype(np.float32)
         image -= self.mean
         image = image.transpose(2, 0, 1)
