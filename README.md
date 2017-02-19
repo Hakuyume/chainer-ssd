@@ -76,7 +76,6 @@ $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval 
 ```
 
 ## ToDo
-- Fix the bug that the loss diverges
 - Add data augmentation
 - Evaluate trained models
 
