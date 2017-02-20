@@ -80,7 +80,9 @@ def distort(image, boxes, classes):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     if random.randrange(2):
-        convert(image[:, :, 0], beta=random.uniform(-18, 18))
+        tmp = image[:, :, 0].astype(int) + random.randint(-18, 18)
+        tmp %= 180
+        image[:, :, 0] = tmp
 
     if random.randrange(2):
         convert(image[:, :, 1], alpha=random.uniform(0.5, 1.5))
