@@ -1,0 +1,3 @@
+[submodule "rect"]
+	path = rect
+	url = https://gist.github.com/be99e0831c0d6a4d2c569d1f6ef272c7.git
