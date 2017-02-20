@@ -2,7 +2,6 @@ import itertools
 import numpy as np
 
 import chainer
-from chainer import cuda
 import chainer.links as L
 import chainer.functions as F
 
