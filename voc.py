@@ -65,9 +65,9 @@ class VOC:
                 continue
 
             bndbox = child.find('bndbox')
-            rect = Rect.LTRB(
+            rect = Rect.LTRB(*(
                 float(bndbox.find(t).text)
-                for t in ('xmin', 'ymin', 'xmax', 'ymax'))
+                for t in ('xmin', 'ymin', 'xmax', 'ymax')))
             cls = self.names.index(child.find('name').text)
 
             annotations.append((rect, cls))
