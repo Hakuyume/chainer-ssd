@@ -65,11 +65,11 @@ def crop(image, boxes, classes):
 
 
 def mirror(image, boxes, classes):
-    _, w, _ = image.shape
+    _, width, _ = image.shape
     if random.randrange(2):
         image = image[:, ::-1]
         boxes = boxes.copy()
-        boxes[:, 0::2] = w - boxes[:, 2::-2]
+        boxes[:, 0::2] = width - boxes[:, 2::-2]
     return image, boxes, classes
 
 
