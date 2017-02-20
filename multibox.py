@@ -117,7 +117,7 @@ class MultiBoxEncoder:
                 np.empty(self.default_boxes.shape, dtype=np.float32),
                 np.zeros(self.default_boxes.shape[:1], dtype=np.int32))
 
-        iou = rect.iou(
+        iou = rect.matrix_iou(
             np.hstack((
                 self.default_boxes[:, :2] - self.default_boxes[:, 2:] / 2,
                 self.default_boxes[:, :2] + self.default_boxes[:, 2:] / 2)),
@@ -159,7 +159,7 @@ class MultiBoxEncoder:
                 if conf[i, cls] < conf_threshold:
                     break
                 box = rect.Rect.LTRB(*boxes[i])
-                iou = rect.iou(
+                iou = rect.matrix_iou(
                     boxes[np.newaxis, i],
                     boxes[selected])
                 if (iou >= nms_threshold).any():
