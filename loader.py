@@ -68,8 +68,8 @@ def expand(image, boxes, classes, mean):
 
     height, width, depth = image.shape
     ratio = random.uniform(1, 4)
-    left = random.randint(int(width * ratio) - width)
-    top = random.randint(int(height * ratio) - height)
+    left = random.randint(0, int(width * ratio) - width)
+    top = random.randint(0, int(height * ratio) - height)
 
     expand_image = np.empty(
         (int(height * ratio), int(width * ratio), depth),
