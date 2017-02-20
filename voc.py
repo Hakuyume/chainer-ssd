@@ -31,9 +31,11 @@ class VOC:
     )
 
     def __init__(self, root, sets, difficult=True):
+        self.root = root
+
         self.images = list()
         for year, name in sets:
-            root = os.path.join(root, 'VOC' + year)
+            root = os.path.join(self.root, 'VOC' + year)
             for line in open(
                     os.path.join(root, 'ImageSets', 'Main', name + '.txt')):
                 self.images.append((root, line.strip()))
