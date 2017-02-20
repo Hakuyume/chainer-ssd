@@ -9,6 +9,12 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
     - DilatedConvolution2D is required.
 - OpenCV 3
 
+## Setup
+```
+$ cd chainer-ssd
+$ git submodule update --init
+```
+
 ## Usage
 
 ### Testing
