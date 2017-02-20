@@ -62,6 +62,34 @@ def crop(image, boxes, classes):
             return image, boxes, classes
 
 
+def distort(image, boxes, classes):
+    def convert(image, alpha=1, beta=0):
+        tmp = image.astype(float) * alpha + beta
+        tmp[tmp < 0] = 0
+        tmp[tmp > 255] = 255
+        image[:] = tmp
+
+    image = image.copy()
+
+    if random.randrange(2):
+        convert(image, beta=random.uniform(-32, 32))
+
+    if random.randrange(2):
+        convert(image, alpha=random.uniform(0.5, 1.5))
+
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    if random.randrange(2):
+        convert(image[:, :, 0], beta=random.uniform(-18, 18))
+
+    if random.randrange(2):
+        convert(image[:, :, 1], alpha=random.uniform(0.5, 1.5))
+
+    image = cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
+
+    return image, boxes, classes
+
+
 def expand(image, boxes, classes, mean):
     if random.randrange(2):
         return image, boxes, classes
@@ -96,6 +124,7 @@ def mirror(image, boxes, classes):
 
 def augment(image, boxes, classes, mean):
     image, boxes, classes = crop(image, boxes, classes)
+    image, boxes, classes = distort(image, boxes, classes)
     image, boxes, classes = expand(image, boxes, classes, mean)
     image, boxes, classes = mirror(image, boxes, classes)
     return image, boxes, classes
