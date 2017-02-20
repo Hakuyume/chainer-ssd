@@ -70,6 +70,6 @@ class VOC:
                 for t in ('xmin', 'ymin', 'xmax', 'ymax'))
             cls = self.names.index(child.find('name').text)
 
-            annotations.append((cls, rect))
+            annotations.append((rect, cls))
 
         return annotations
