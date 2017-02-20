@@ -58,7 +58,6 @@ if __name__ == '__main__':
     model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
     if args.init:
         serializers.load_npz(args.init, model)
-    model.train = True
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
