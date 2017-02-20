@@ -61,7 +61,6 @@ def crop(image, boxes, classes):
 
             return image, boxes, classes
 
-        print('over')
 
 
 def mirror(image, boxes, classes):
