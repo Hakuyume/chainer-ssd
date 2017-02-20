@@ -80,5 +80,5 @@ $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval 
 - Evaluate trained models
 
 ## References
-+ Liu, Wei, et al. "SSD: Single shot multibox detector." ECCV2016.
-+ [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
+- Wei Liu, et al. "SSD: Single shot multibox detector." ECCV2016.
+- [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
