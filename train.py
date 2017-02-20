@@ -11,7 +11,7 @@ import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
 from loader import SSDLoader
-from voc import VOCDataset
+from voc import VOC
 
 
 class CustomHook(object):
@@ -71,7 +71,7 @@ if __name__ == '__main__':
         variance=config.variance)
 
     train = SSDLoader(
-        VOCDataset(args.root, [t.split('-') for t in args.train]),
+        VOC(args.root, [t.split('-') for t in args.train]),
         model.insize,
         config.mean,
         multibox_encoder)

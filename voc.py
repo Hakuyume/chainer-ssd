@@ -1,44 +1,44 @@
 import cv2
-import numpy as np
 import os
 import xml.etree.ElementTree as ET
 
-
-names = (
-    'aeroplane',
-    'bicycle',
-    'bird',
-    'boat',
-    'bottle',
-    'bus',
-    'car',
-    'cat',
-    'chair',
-    'cow',
-    'diningtable',
-    'dog',
-    'horse',
-    'motorbike',
-    'person',
-    'pottedplant',
-    'sheep',
-    'sofa',
-    'train',
-    'tvmonitor',
-)
+from rect import Rect
 
 
-class VOCDataset:
+class VOC:
 
-    def __init__(self, root, sets):
-        self.root = root
+    names = (
+        'aeroplane',
+        'bicycle',
+        'bird',
+        'boat',
+        'bottle',
+        'bus',
+        'car',
+        'cat',
+        'chair',
+        'cow',
+        'diningtable',
+        'dog',
+        'horse',
+        'motorbike',
+        'person',
+        'pottedplant',
+        'sheep',
+        'sofa',
+        'train',
+        'tvmonitor',
+    )
 
+    def __init__(self, root, sets, difficult=True):
         self.images = list()
         for year, name in sets:
             root = os.path.join(self.root, 'VOC' + year)
             for line in open(
                     os.path.join(root, 'ImageSets', 'Main', name + '.txt')):
                 self.images.append((root, line.strip()))
+
+        self.difficult = difficult
 
     def __len__(self):
         return len(self.images)
@@ -55,19 +55,19 @@ class VOCDataset:
     def annotation(self, i):
         boxes = list()
         classes = list()
-        difficulties = list()
         tree = ET.parse(os.path.join(
             self.images[i][0], 'Annotations', self.images[i][1] + '.xml'))
         for child in tree.getroot():
             if not child.tag == 'object':
                 continue
+
+            if not self.difficult and bool(int(child.find('difficult').text)):
+                continue
+
             bndbox = child.find('bndbox')
-            boxes.append(tuple(
+            boxes.append(Rect.LTRB(
                 float(bndbox.find(t).text)
                 for t in ('xmin', 'ymin', 'xmax', 'ymax')))
-            classes.append(names.index(child.find('name').text))
-            difficulties.append(bool(int(child.find('difficult').text)))
-        boxes = np.array(boxes)
-        classes = np.array(classes)
-        difficulties = np.array(difficulties)
-        return boxes, classes, difficulties
+            classes.append(self.names.index(child.find('name').text))
+
+        return boxes, classes

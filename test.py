@@ -12,7 +12,7 @@ import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
 import voc
-from voc import VOCDataset
+from voc import VOC
 
 
 if __name__ == '__main__':
@@ -51,13 +51,13 @@ if __name__ == '__main__':
         nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45, 0.01)
         for box, cls, score in nms:
             box *= size
-            filename = 'comp4_det_test_{:s}.txt'.format(voc.names[cls])
+            filename = 'comp4_det_test_{:s}.txt'.format(VOC.names[cls])
             with open(filename, mode='a') as f:
                 print(
                     name, score, box.left, box.top, box.right, box.bottom,
                     file=f)
 
-    dataset = VOCDataset(args.root, [t.split('-') for t in args.test])
+    dataset = VOC(args.root, [t.split('-') for t in args.test])
 
     info = list()
     batch = list()

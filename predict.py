@@ -10,7 +10,7 @@ from chainer import serializers
 import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
-import voc
+from voc import VOC
 
 
 if __name__ == '__main__':
@@ -58,7 +58,7 @@ if __name__ == '__main__':
             (0, 0, 255),
             3)
 
-        name = voc.names[cls]
+        name = VOC.names[cls]
         (w, h), b = cv2.getTextSize(name, cv2.FONT_HERSHEY_PLAIN, 1, 1)
         cv2.rectangle(
             img,
