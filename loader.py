@@ -62,6 +62,28 @@ def crop(image, boxes, classes):
             return image, boxes, classes
 
 
+def expand(image, boxes, classes, mean):
+    if random.randrange(2):
+        return image, boxes, classes
+
+    height, width, depth = image.shape
+    ratio = random.uniform(1, 4)
+    left = random.randrange(int(width * ratio) - width)
+    top = random.randrange(int(height * ratio) - height)
+
+    expand_image = np.empty(
+        (int(height * ratio), int(width * ratio), depth),
+        dtype=image.dtype)
+    expand_image[:, :] = mean
+    expand_image[top:top + height, left:left + width] = image
+    image = expand_image
+
+    boxes = boxes.copy()
+    boxes[:, :2] += (left, top)
+    boxes[:, 2:] += (left, top)
+
+    return image, boxes, classes
+
 
 def mirror(image, boxes, classes):
     _, width, _ = image.shape
@@ -72,8 +94,9 @@ def mirror(image, boxes, classes):
     return image, boxes, classes
 
 
-def augment(image, boxes, classes):
+def augment(image, boxes, classes, mean):
     image, boxes, classes = crop(image, boxes, classes)
+    image, boxes, classes = expand(image, boxes, classes, mean)
     image, boxes, classes = mirror(image, boxes, classes)
     return image, boxes, classes
 
@@ -98,7 +121,7 @@ class SSDLoader(chainer.dataset.DatasetMixin):
         boxes = np.array(boxes)
         classes = np.array(classes)
 
-        image, boxes, classes = augment(image, boxes, classes)
+        image, boxes, classes = augment(image, boxes, classes, self.mean)
 
         h, w, _ = image.shape
         image = cv2.resize(image, (self.size, self.size)).astype(np.float32)
