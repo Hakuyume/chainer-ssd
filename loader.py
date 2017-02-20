@@ -20,9 +20,10 @@ class SSDLoader(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         image = self.dataset.image(i)
-        boxes, classes = self.dataset.annotation(i)
-        boxes = np.array(boxes)
+
+        classes, boxes = zip(self.dataset.annotations(i))
         classes = np.array(classes)
+        boxes = np.array(boxes)
 
         h, w, _ = image.shape
         if random.randrange(2):

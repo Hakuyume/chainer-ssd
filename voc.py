@@ -52,9 +52,9 @@ class VOC:
                 self.images[i][0], 'JPEGImages', self.images[i][1] + '.jpg'),
             cv2.IMREAD_COLOR)
 
-    def annotation(self, i):
-        boxes = list()
-        classes = list()
+    def annotations(self, i):
+        annotations = list()
+
         tree = ET.parse(os.path.join(
             self.images[i][0], 'Annotations', self.images[i][1] + '.xml'))
         for child in tree.getroot():
@@ -65,9 +65,11 @@ class VOC:
                 continue
 
             bndbox = child.find('bndbox')
-            boxes.append(Rect.LTRB(
+            rect = Rect.LTRB(
                 float(bndbox.find(t).text)
-                for t in ('xmin', 'ymin', 'xmax', 'ymax')))
-            classes.append(self.names.index(child.find('name').text))
+                for t in ('xmin', 'ymin', 'xmax', 'ymax'))
+            cls = self.names.index(child.find('name').text)
 
-        return boxes, classes
+            annotations.append((cls, rect))
+
+        return annotations
