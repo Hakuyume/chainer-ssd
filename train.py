@@ -48,7 +48,6 @@ if __name__ == '__main__':
     parser.add_argument('--root', default='VOCdevkit')
     parser.add_argument('--train', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
-    parser.add_argument('--loaderjob', type=int, default=2)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--out', default='result')
     parser.add_argument('--init')
@@ -75,8 +74,7 @@ if __name__ == '__main__':
         config.mean,
         multibox_encoder)
 
-    train_iter = chainer.iterators.MultiprocessIterator(
-        train, args.batchsize, n_processes=args.loaderjob)
+    train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(model)
