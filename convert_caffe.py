@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     caffe_model = CustomCaffeFunction(args.source)
     model = SSD300(
-        n_class=args.n_classes,
+        n_classes=args.n_classes,
         aspect_ratios=config.aspect_ratios)
 
     model.conv1_1.copyparams(caffe_model.conv1_1)

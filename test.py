@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('model')
     args = parser.parse_args()
 
-    model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
+    model = SSD300(n_classes=20, aspect_ratios=config.aspect_ratios)
     serializers.load_npz(args.model, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()

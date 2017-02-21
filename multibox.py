@@ -10,18 +10,18 @@ import rect
 
 class MultiBox(chainer.Chain):
 
-    def __init__(self, n_class, aspect_ratios, init=dict()):
+    def __init__(self, n_classes, aspect_ratios, init=dict()):
         super().__init__(
             loc=chainer.ChainList(),
             conf=chainer.ChainList(),
         )
 
-        self.n_class = n_class
+        self.n_classes = n_classes
         for ar in aspect_ratios:
             n = (len(ar) + 1) * 2
             self.loc.add_link(L.Convolution2D(None, n * 4, 3, pad=1, **init))
             self.conf.add_link(L.Convolution2D(
-                None, n * (self.n_class + 1), 3, pad=1, **init))
+                None, n * (self.n_classes + 1), 3, pad=1, **init))
 
     def __call__(self, xs):
         hs_loc = list()
@@ -35,7 +35,8 @@ class MultiBox(chainer.Chain):
 
             h_conf = self.conf[i](x)
             h_conf = F.transpose(h_conf, (0, 2, 3, 1))
-            h_conf = F.reshape(h_conf, (h_conf.shape[0], -1, self.n_class + 1))
+            h_conf = F.reshape(
+                h_conf, (h_conf.shape[0], -1, self.n_classes + 1))
             hs_conf.append(h_conf)
 
         y_loc = F.concat(hs_loc, axis=1)
@@ -75,7 +76,7 @@ class MultiBox(chainer.Chain):
         loss_loc = F.sum(loss_loc) / pos.sum()
 
         n = t_conf.shape[0]
-        x_conf = F.reshape(x_conf, (-1, self.n_class + 1))
+        x_conf = F.reshape(x_conf, (-1, self.n_classes + 1))
         t_conf = F.flatten(t_conf)
         loss_conf = F.logsumexp(x_conf, axis=1) - F.select_item(x_conf, t_conf)
         hard_neg = self.mine_hard_negative(n, loss_conf, t_conf)
