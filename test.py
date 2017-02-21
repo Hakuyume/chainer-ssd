@@ -11,7 +11,6 @@ from chainer import serializers
 import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
-import voc
 from voc import VOC
 
 
