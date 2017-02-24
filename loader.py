@@ -148,9 +148,13 @@ class SSDLoader(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         image = self.dataset.image(i)
 
-        boxes, classes = zip(*self.dataset.annotations(i))
-        boxes = np.array(boxes)
-        classes = np.array(classes)
+        try:
+            boxes, classes = zip(*self.dataset.annotations(i))
+            boxes = np.array(boxes)
+            classes = np.array(classes)
+        except ValueError:
+            boxes = np.empty((0, 4), dtype=np.float32)
+            classes = np.empty((0,), dtype=np.int32)
 
         image, boxes, classes = augment(image, boxes, classes, self.mean)
 
