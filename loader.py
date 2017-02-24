@@ -150,12 +150,13 @@ class SSDLoader(chainer.dataset.DatasetMixin):
 
         try:
             boxes, classes = zip(*self.dataset.annotations(i))
-            boxes = np.array(boxes)
-            classes = np.array(classes)
         except ValueError:
             boxes = np.empty((0, 4), dtype=np.float32)
             classes = np.empty((0,), dtype=np.int32)
+            return image, boxes, classes
 
+        boxes = np.array(boxes)
+        classes = np.array(classes)
         image, boxes, classes = augment(image, boxes, classes, self.mean)
 
         h, w, _ = image.shape
