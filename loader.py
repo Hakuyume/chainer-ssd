@@ -158,13 +158,11 @@ class SSDLoader(chainer.dataset.DatasetMixin):
             classes = np.empty((0,), dtype=np.int32)
 
         h, w, _ = image.shape
-        image = cv2.resize(
-            image, (self.size, self.size)).astype(np.float32)
+        image = cv2.resize(image, (self.size, self.size)).astype(np.float32)
         image -= self.mean
         image = image.transpose(2, 0, 1)
         boxes[:, 0::2] /= w
         boxes[:, 1::2] /= h
-
         loc, conf = self.encoder.encode(boxes, classes)
 
         return image, loc, conf
