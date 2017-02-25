@@ -48,8 +48,8 @@ class MultiBox(chainer.Chain):
         loss_conf = chainer.cuda.to_cpu(loss_conf.data).copy()
         t_conf = chainer.cuda.to_cpu(t_conf.data)
 
-        t_conf = t_conf.reshape((n, -1))
         loss_conf = loss_conf.reshape((n, -1))
+        t_conf = t_conf.reshape((n, -1))
 
         loss_conf[t_conf > 0] = 0
         rank = (-loss_conf).argsort(axis=1).argsort(axis=1)
