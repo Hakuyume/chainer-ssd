@@ -45,14 +45,8 @@ class MultiBox(chainer.Chain):
         return y_loc, y_conf
 
     def mine_hard_negative(self, n, loss_conf, t_conf):
-        xp = self.xp
-
-        if xp is np:
-            loss_conf = loss_conf.data.copy()
-            t_conf = t_conf.data
-        else:
-            loss_conf = xp.asnumpy(loss_conf.data)
-            t_conf = xp.asnumpy(t_conf.data)
+        loss_conf = chainer.cuda.to_cpu(loss_conf.data).copy()
+        t_conf = chainer.cuda.to_cpu(t_conf.data)
 
         t_conf = t_conf.reshape((n, -1))
         loss_conf = loss_conf.reshape((n, -1))
@@ -61,7 +55,7 @@ class MultiBox(chainer.Chain):
         rank = (-loss_conf).argsort(axis=1).argsort(axis=1)
         hard_neg = rank < (np.count_nonzero(t_conf, axis=1) * 3)[:, np.newaxis]
 
-        return xp.array(hard_neg).flatten()
+        return self.xp.array(hard_neg).flatten()
 
     def loss(self, x_loc, x_conf, t_loc, t_conf):
         xp = self.xp
