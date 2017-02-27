@@ -29,12 +29,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('source')
     parser.add_argument('target')
+    parser.add_argument('--n_classes', type=int, default=20)
     parser.add_argument('--baseonly', action='store_true')
     parser.set_defaults(baseonly=False)
     args = parser.parse_args()
 
     caffe_model = CustomCaffeFunction(args.source)
-    model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
+    model = SSD300(
+        n_classes=args.n_classes,
+        aspect_ratios=config.aspect_ratios)
 
     model.conv1_1.copyparams(caffe_model.conv1_1)
     model.conv1_2.copyparams(caffe_model.conv1_2)

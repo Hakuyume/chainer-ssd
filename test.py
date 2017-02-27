@@ -3,6 +3,7 @@
 import argparse
 import cv2
 import numpy as np
+import os
 
 import chainer
 from chainer import cuda
@@ -11,20 +12,20 @@ from chainer import serializers
 import config
 from ssd import SSD300
 from multibox import MultiBoxEncoder
-import voc
 from voc import VOC
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
+    parser.add_argument('--output', default='.')
     parser.add_argument('--test', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('model')
     args = parser.parse_args()
 
-    model = SSD300(n_class=20, aspect_ratios=config.aspect_ratios)
+    model = SSD300(n_classes=20, aspect_ratios=config.aspect_ratios)
     serializers.load_npz(args.model, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
@@ -51,7 +52,8 @@ if __name__ == '__main__':
         nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45, 0.01)
         for box, cls, score in nms:
             box *= size
-            filename = 'comp4_det_test_{:s}.txt'.format(VOC.names[cls])
+            filename = os.path.join(
+                args.output, 'comp4_det_test_{:s}.txt'.format(VOC.names[cls]))
             with open(filename, mode='a') as f:
                 print(
                     name, score, box.left, box.top, box.right, box.bottom,

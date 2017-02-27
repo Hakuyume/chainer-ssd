@@ -2,6 +2,13 @@
 
 This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
+## Performance
+VOC2007 Test
+
+| Original | Test only (model conversion) | Train and Test |
+|:-:|:-:|:-:|
+| 77.6 % | 77.5 % | 77.3 % |
+
 ## Requirement
 
 - Python 3.5+
@@ -37,8 +44,6 @@ $ tar xf VOCtest_06-Nov-2007.tar
 $ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 (comp4_det_test_*.txt will be generated)
 ```
-In my experiment, the mAP was 77.5%.  
-cf. the mAP of the original implementation was 77.6%.
 
 #### 3\.b Test with an image
 ```
@@ -80,10 +85,11 @@ $ tar xf VOCtrainval_11-May-2012.tar
 ```
 $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
+Learning rate policy is not implemented yet.
+The score shown above was achieved by changing learning rate manually.
 
 ## ToDo
-- Add data augmentation
-- Evaluate trained models
+- Change learning rate automatically
 
 ## References
 - Wei Liu, et al. "SSD: Single shot multibox detector." ECCV2016.
