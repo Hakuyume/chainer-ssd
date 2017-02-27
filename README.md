@@ -2,6 +2,13 @@
 
 This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
+## Performance
+
+VOC2007 Test
+| Original | Test only (model conversion) | Train and Test |
+|:-:|:-:|:-:|
+| 77.6 % | 77.5 % | 77.3 %|
+
 ## Requirement
 
 - Python 3.5+
