@@ -85,10 +85,11 @@ $ tar xf VOCtrainval_11-May-2012.tar
 ```
 $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
+Learning rate policy is not implemented yet.
+The score shown above was achieved by changing learning rate manually.
 
 ## ToDo
-- Add data augmentation
-- Evaluate trained models
+- Change learning rate automatically
 
 ## References
 - Wei Liu, et al. "SSD: Single shot multibox detector." ECCV2016.
