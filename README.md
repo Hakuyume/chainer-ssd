@@ -9,7 +9,7 @@ VOC2007 Test
 |:-:|:-:|:-:|
 | 77.6 % | 77.5 % | 77.3 % |
 
-## Requirement
+## Requirements
 
 - Python 3.5+
 - [Chainer](https://github.com/pfnet/chainer) 1.20+
