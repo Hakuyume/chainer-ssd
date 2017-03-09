@@ -88,6 +88,8 @@ $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval 
 Learning rate policy is not implemented yet.
 The score shown above was achieved by changing learning rate manually.
 
+![loss curve](loss.svg)
+
 ## ToDo
 - Change learning rate automatically
 
