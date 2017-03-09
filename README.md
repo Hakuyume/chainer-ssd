@@ -59,7 +59,7 @@ $ python3 predict.py ssd300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
 18 0.0143461 11 1 350 498
 (press 'q' to exit)
 ```
-![result](result_converted.jpg "result")
+![result](images/result_converted.jpg)
 
 ### Training (on going)
 
@@ -88,7 +88,7 @@ $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval 
 Learning rate policy is not implemented yet.
 The score shown above was achieved by changing learning rate manually.
 
-![loss curve](loss.png)
+![loss curve](images/loss_curve.png)
 
 ## ToDo
 - Change learning rate automatically
