@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 import random
 
-from rect import Rect, matrix_iou
+from rect import matrix_iou
+from rect import Rect
 
 import chainer
 

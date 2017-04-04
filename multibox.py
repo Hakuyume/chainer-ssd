@@ -2,8 +2,8 @@ import itertools
 import numpy as np
 
 import chainer
-import chainer.links as L
 import chainer.functions as F
+import chainer.links as L
 
 import rect
 
@@ -82,7 +82,7 @@ class MultiBox(chainer.Chain):
         return loss_loc, loss_conf
 
 
-class MultiBoxEncoder:
+class MultiBoxEncoder(object):
 
     def __init__(self, grids, steps, sizes, aspect_ratios, variance):
         self.aspect_ratios = aspect_ratios

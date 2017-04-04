@@ -8,9 +8,9 @@ from chainer import training
 from chainer.training import extensions
 
 import config
-from ssd import SSD300
-from multibox import MultiBoxEncoder
 from loader import SSDLoader
+from multibox import MultiBoxEncoder
+from ssd import SSD300
 from voc import VOC
 
 
@@ -92,9 +92,8 @@ if __name__ == '__main__':
         model, 'model_iter_{.updater.iteration}'), trigger=snapshot_interval)
     trainer.extend(extensions.LogReport(trigger=log_interval))
     trainer.extend(extensions.observe_lr(), trigger=log_interval)
-    trainer.extend(
-        extensions.PrintReport(
-            ['epoch', 'iteration', 'main/loss', 'main/loc', 'main/conf', 'lr']),
+    trainer.extend(extensions.PrintReport(
+        ['epoch', 'iteration', 'main/loss', 'main/loc', 'main/conf', 'lr']),
         trigger=log_interval)
     trainer.extend(extensions.ProgressBar(update_interval=10))
 

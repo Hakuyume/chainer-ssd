@@ -8,7 +8,8 @@ import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
 
 import config
-from ssd import SSD300, Normalize
+from ssd import Normalize
+from ssd import SSD300
 
 
 class CustomCaffeFunction(caffe.CaffeFunction):

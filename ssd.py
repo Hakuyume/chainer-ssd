@@ -1,9 +1,9 @@
 import numpy as np
 
 import chainer
-import chainer.links as L
 import chainer.functions as F
 from chainer import initializers
+import chainer.links as L
 
 from multibox import MultiBox
 

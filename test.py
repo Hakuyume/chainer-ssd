@@ -10,8 +10,8 @@ from chainer import cuda
 from chainer import serializers
 
 import config
-from ssd import SSD300
 from multibox import MultiBoxEncoder
+from ssd import SSD300
 from voc import VOC
 
 

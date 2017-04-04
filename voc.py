@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from rect import Rect
 
 
-class VOC:
+class VOC(object):
 
     names = (
         'aeroplane',
