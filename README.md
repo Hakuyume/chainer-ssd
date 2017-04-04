@@ -92,6 +92,8 @@ The score shown above was achieved by changing learning rate manually.
 
 ## ToDo
 - Change learning rate automatically
+- SSD512
+- Multi GPUs support
 
 ## References
 - Wei Liu, et al. "SSD: Single shot multibox detector." ECCV2016.
