@@ -13,7 +13,9 @@ VOC2007 Test
 
 - Python 3.5+
 - [Chainer](https://github.com/pfnet/chainer) 1.20+
-    - DilatedConvolution2D is required.
+    - `DilatedConvolution2D` is required.
+- Numpy 1.12+
+    - `axis` option of `numpy.count_nonzero` is required.
 - OpenCV 3
 
 ## Setup
