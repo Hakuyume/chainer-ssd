@@ -6,6 +6,7 @@ import chainer
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
+from chainer.training import triggers
 
 import config
 from loader import SSDLoader
@@ -82,6 +83,9 @@ if __name__ == '__main__':
 
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
+    trainer.extend(
+        extensions.ExponentialShift('lr', 0.1),
+        trigger=triggers.ManualScheduleTrigger([8000, 10000], 'iteration'))
 
     snapshot_interval = 1000, 'iteration'
     log_interval = 10, 'iteration'
