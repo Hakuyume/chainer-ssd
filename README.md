@@ -12,8 +12,8 @@ VOC2007 Test
 ## Requirements
 
 - Python 3.5+
-- [Chainer](https://github.com/pfnet/chainer) 1.20+
-    - `DilatedConvolution2D` is required.
+- [Chainer](https://github.com/pfnet/chainer) 1.23+
+    - `ManualScheduleTrigger` is required.
 - Numpy 1.12+
     - `axis` option of `numpy.count_nonzero` is required.
 - OpenCV 3
@@ -87,13 +87,10 @@ $ tar xf VOCtrainval_11-May-2012.tar
 ```
 $ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
-Learning rate policy is not implemented yet.
-The score shown above was achieved by changing learning rate manually.
 
 ![loss curve](images/loss_curve.png)
 
 ## ToDo
-- Change learning rate automatically
 - SSD512
 - Multi GPUs support
 
