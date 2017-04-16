@@ -85,7 +85,7 @@ if __name__ == '__main__':
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1),
-        trigger=triggers.ManualScheduleTrigger([8000, 10000], 'iteration'))
+        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
 
     snapshot_interval = 1000, 'iteration'
     log_interval = 10, 'iteration'
