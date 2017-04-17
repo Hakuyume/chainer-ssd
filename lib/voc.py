@@ -30,7 +30,7 @@ class VOCDataset(object):
     )
 
     def __init__(self, root, year, subset):
-        self.root = os.path.join(self.root, 'VOC' + year)
+        self.root = os.path.join(root, 'VOC' + year)
 
         path = os.path.join(self.root, 'ImageSets', 'Main', subset + '.txt')
         self.images = [line.strip() for line in open(path)]
