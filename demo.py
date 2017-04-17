@@ -5,6 +5,7 @@ import cv2
 import matplotlib.pyplot as plot
 import numpy as np
 
+import chainer
 from chainer import serializers
 
 from lib import MultiBoxEncoder
@@ -31,14 +32,15 @@ if __name__ == '__main__':
     x = x[np.newaxis]
 
     loc, conf = model(x)
-    results = multibox_encoder.decode(loc.data[0], conf.data[0], 0.45, 0.01)
+    loc = chainer.cuda.to_cpu(loc.data)
+    conf = chainer.cuda.to_cpu(conf.data)
+    results = multibox_encoder.decode(loc[0], conf[0], 0.45, 0.01)
 
     figure = plot.figure()
     ax = figure.add_subplot(111)
     ax.imshow(src[:, :, ::-1])
 
     for box, label, score in results:
-        box = np.array(box)
         box[:2] *= src.shape[1::-1]
         box[2:] *= src.shape[1::-1]
         box = box.astype(int)
