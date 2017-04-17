@@ -5,8 +5,6 @@ import chainer.functions as F
 from chainer import initializers
 import chainer.links as L
 
-from multibox import MultiBox
-
 
 class _Normalize(chainer.Link):
 
@@ -27,55 +25,69 @@ class SSD300(chainer.Chain):
 
     insize = 300
     grids = (38, 19, 10, 5, 3, 1)
+    scale = 300
+    aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2,), (2,))
 
-    def __init__(self, n_classes, aspect_ratios):
-        init = {
+    def __init__(self, n_classes):
+        self.n_classes = n_classes
+
+        conv_init = {
             'initialW': initializers.GlorotUniform(),
             'initial_bias': initializers.Zero(),
         }
+        norm_init = {
+            'initial': initializers.Constant(20),
+        }
+
         super().__init__(
-            conv1_1=L.Convolution2D(None, 64, 3, pad=1, **init),
-            conv1_2=L.Convolution2D(None, 64, 3, pad=1, **init),
+            conv1_1=L.Convolution2D(None, 64, 3, pad=1, **conv_init),
+            conv1_2=L.Convolution2D(None, 64, 3, pad=1, **conv_init),
 
-            conv2_1=L.Convolution2D(None, 128, 3, pad=1, **init),
-            conv2_2=L.Convolution2D(None, 128, 3, pad=1, **init),
+            conv2_1=L.Convolution2D(None, 128, 3, pad=1, **conv_init),
+            conv2_2=L.Convolution2D(None, 128, 3, pad=1, **conv_init),
 
-            conv3_1=L.Convolution2D(None, 256, 3, pad=1, **init),
-            conv3_2=L.Convolution2D(None, 256, 3, pad=1, **init),
-            conv3_3=L.Convolution2D(None, 256, 3, pad=1, **init),
+            conv3_1=L.Convolution2D(None, 256, 3, pad=1, **conv_init),
+            conv3_2=L.Convolution2D(None, 256, 3, pad=1, **conv_init),
+            conv3_3=L.Convolution2D(None, 256, 3, pad=1, **conv_init),
 
-            conv4_1=L.Convolution2D(None, 512, 3, pad=1, **init),
-            conv4_2=L.Convolution2D(None, 512, 3, pad=1, **init),
-            conv4_3=L.Convolution2D(None, 512, 3, pad=1, **init),
-            norm4=_Normalize(512, initial=initializers.Constant(20)),
+            conv4_1=L.Convolution2D(None, 512, 3, pad=1, **conv_init),
+            conv4_2=L.Convolution2D(None, 512, 3, pad=1, **conv_init),
+            conv4_3=L.Convolution2D(None, 512, 3, pad=1, **conv_init),
+            norm4=_Normalize(512, **norm_init),
 
-            conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
-            conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
-            conv5_3=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
+            conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **conv_init),
+            conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **conv_init),
+            conv5_3=L.DilatedConvolution2D(None, 512, 3, pad=1, **conv_init),
 
             conv6=L.DilatedConvolution2D(
-                None, 1024, 3, pad=6, dilate=6, **init),
-            conv7=L.Convolution2D(None, 1024, 1, **init),
+                None, 1024, 3, pad=6, dilate=6, **conv_init),
+            conv7=L.Convolution2D(None, 1024, 1, **conv_init),
 
-            conv8_1=L.Convolution2D(None, 256, 1, **init),
-            conv8_2=L.Convolution2D(None, 512, 3, stride=2, pad=1, **init),
+            conv8_1=L.Convolution2D(None, 256, 1, **conv_init),
+            conv8_2=L.Convolution2D(
+                None, 512, 3, stride=2, pad=1, **conv_init),
 
-            conv9_1=L.Convolution2D(None, 128, 1, **init),
-            conv9_2=L.Convolution2D(None, 256, 3, stride=2, pad=1, **init),
+            conv9_1=L.Convolution2D(None, 128, 1, **conv_init),
+            conv9_2=L.Convolution2D(
+                None, 256, 3, stride=2, pad=1, **conv_init),
 
-            conv10_1=L.Convolution2D(None, 128, 1, **init),
-            conv10_2=L.Convolution2D(None, 256, 3, **init),
+            conv10_1=L.Convolution2D(None, 128, 1, **conv_init),
+            conv10_2=L.Convolution2D(None, 256, 3, **conv_init),
 
-            conv11_1=L.Convolution2D(None, 128, 1, **init),
-            conv11_2=L.Convolution2D(None, 256, 3, **init),
+            conv11_1=L.Convolution2D(None, 128, 1, **conv_init),
+            conv11_2=L.Convolution2D(None, 256, 3, **conv_init),
 
-            multibox=MultiBox(
-                n_classes, aspect_ratios=aspect_ratios, init=init),
+            loc=chainer.ChainList(),
+            conf=chainer.ChainList(),
         )
-        self.n_classes = n_classes
-        self.aspect_ratios = aspect_ratios
+        for ar in self.aspect_ratios:
+            n = (len(ar) + 1) * 2
+            self.loc.add_link(L.Convolution2D(
+                None, n * 4, 3, pad=1, **conv_init))
+            self.conf.add_link(L.Convolution2D(
+                None, n * (self.n_classes + 1), 3, pad=1, **conv_init))
 
-    def __call__(self, x, t_loc=None, t_conf=None):
+    def __call__(self, x):
         hs = list()
 
         h = F.relu(self.conv1_1(x))
@@ -122,14 +134,21 @@ class SSD300(chainer.Chain):
         h = F.relu(self.conv11_2(h))
         hs.append(h)
 
-        h_loc, h_conf = self.multibox(hs)
+        ys_loc = list()
+        ys_conf = list()
+        for i, x in enumerate(hs):
+            loc = self.loc[i](x)
+            loc = F.transpose(loc, (0, 2, 3, 1))
+            loc = F.reshape(loc, (loc.shape[0], -1, 4))
+            ys_loc.append(loc)
 
-        if t_loc is None or t_conf is None:
-            return h_loc, h_conf
+            conf = self.conf[i](x)
+            conf = F.transpose(conf, (0, 2, 3, 1))
+            conf = F.reshape(
+                conf, (conf.shape[0], -1, self.n_classes + 1))
+            ys_conf.append(conf)
 
-        loss_loc, loss_conf = self.multibox.loss(
-            h_loc, h_conf, t_loc, t_conf)
-        loss = loss_loc + loss_conf
-        chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf},  self)
-        return loss
+        y_loc = F.concat(ys_loc, axis=1)
+        y_conf = F.concat(ys_conf, axis=1)
+
+        return y_loc, y_conf
