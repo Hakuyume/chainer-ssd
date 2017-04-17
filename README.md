@@ -60,7 +60,7 @@ $ ./demo.py VGG_VOC0712_SSD_300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
 15 0.0134011 274 92 319 184
 18 0.0143462 11 1 350 498
 ```
-![result](images/demo.png)
+![demo](images/demo.png)
 
 ### Training (on going)
 
