@@ -8,7 +8,7 @@ import chainer.links.caffe.caffe_function as caffe
 from chainer import serializers
 
 import config
-from ssd import Normalize
+from ssd import _Normalize
 from ssd import SSD300
 
 
@@ -20,7 +20,7 @@ class CustomCaffeFunction(caffe.CaffeFunction):
     @caffe._layer('Normalize', None)
     def _setup_normarize(self, layer):
         blobs = layer.blobs
-        func = Normalize(caffe._get_num(blobs[0]))
+        func = _Normalize(caffe._get_num(blobs[0]))
         func.scale.data[:] = np.array(blobs[0].data)
 
         self.add_link(layer.name, func)

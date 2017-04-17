@@ -8,14 +8,13 @@ import chainer.links as L
 from multibox import MultiBox
 
 
-class Normalize(chainer.Link):
+class _Normalize(chainer.Link):
 
-    def __init__(self, n_channel, initial=0, eps=1e-5):
+    def __init__(self, n_channels, initial=0, eps=1e-5):
         super().__init__()
         self.eps = eps
         self.add_param(
-            'scale',
-            n_channel,
+            'scale', n_channels,
             initializer=initializers._get_initializer(initial))
 
     def __call__(self, x):
@@ -48,7 +47,7 @@ class SSD300(chainer.Chain):
             conv4_1=L.Convolution2D(None, 512, 3, pad=1, **init),
             conv4_2=L.Convolution2D(None, 512, 3, pad=1, **init),
             conv4_3=L.Convolution2D(None, 512, 3, pad=1, **init),
-            norm4=Normalize(512, initial=initializers.Constant(20)),
+            norm4=_Normalize(512, initial=initializers.Constant(20)),
 
             conv5_1=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
             conv5_2=L.DilatedConvolution2D(None, 512, 3, pad=1, **init),
