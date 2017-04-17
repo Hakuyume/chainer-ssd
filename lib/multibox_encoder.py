@@ -6,26 +6,22 @@ from lib import matrix_iou
 
 class MultiBoxEncoder(object):
 
-    def __init__(self, model, steps, sizes, variance):
-        assert len(model.grids) == len(model.aspect_ratios)
-        assert len(model.grids) == len(steps)
-        assert len(model.grids) + 1 == len(sizes)
-
-        self.variance = variance
+    def __init__(self, model):
+        self.variance = model.variance
 
         default_boxes = list()
         for k in range(len(model.grids)):
             for v, u in itertools.product(range(model.grids[k]), repeat=2):
-                cx = (u + 0.5) * steps[k]
-                cy = (v + 0.5) * steps[k]
+                cx = (u + 0.5) * model.steps[k]
+                cy = (v + 0.5) * model.steps[k]
 
-                s = sizes[k]
+                s = model.sizes[k]
                 default_boxes.append((cx, cy, s, s))
 
-                s = np.sqrt(sizes[k] * sizes[k + 1])
+                s = np.sqrt(model.sizes[k] * model.sizes[k + 1])
                 default_boxes.append((cx, cy, s, s))
 
-                s = sizes[k]
+                s = model.sizes[k]
                 for ar in model.aspect_ratios[k]:
                     default_boxes.append(
                         (cx, cy, s * np.sqrt(ar), s / np.sqrt(ar)))

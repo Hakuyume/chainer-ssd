@@ -7,7 +7,6 @@ import numpy as np
 
 from chainer import serializers
 
-import config
 from lib import MultiBoxEncoder
 from lib import SSD300
 from lib import VOCDataset
@@ -22,16 +21,12 @@ if __name__ == '__main__':
     model = SSD300(20)
     serializers.load_npz(args.model, model)
 
-    multibox_encoder = MultiBoxEncoder(
-        model=model,
-        steps=config.steps,
-        sizes=config.sizes,
-        variance=config.variance)
+    multibox_encoder = MultiBoxEncoder(model)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
 
     x = cv2.resize(src, (model.insize, model.insize)).astype(np.float32)
-    x -= config.mean
+    x -= model.mean
     x = x.transpose(2, 0, 1)
     x = x[np.newaxis]
 
