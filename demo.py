@@ -4,13 +4,12 @@ import argparse
 import cv2
 import numpy as np
 
-import chainer
 from chainer import serializers
 
 import config
-from multibox import MultiBoxEncoder
-from ssd import SSD300
-from voc import VOC
+from lib import MultiBoxEncoder
+from lib import SSD300
+from lib import VOCDataset
 
 
 if __name__ == '__main__':
@@ -19,14 +18,13 @@ if __name__ == '__main__':
     parser.add_argument('image')
     args = parser.parse_args()
 
-    model = SSD300(n_classes=20, aspect_ratios=config.aspect_ratios)
+    model = SSD300(20)
     serializers.load_npz(args.model, model)
 
     multibox_encoder = MultiBoxEncoder(
-        grids=model.grids,
+        model=model,
         steps=config.steps,
         sizes=config.sizes,
-        aspect_ratios=model.aspect_ratios,
         variance=config.variance)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
@@ -36,39 +34,38 @@ if __name__ == '__main__':
     x = x.transpose(2, 0, 1)
     x = x[np.newaxis]
 
-    loc, conf = model(chainer.Variable(x, volatile=True))
-    boxes, conf = multibox_encoder.decode(loc.data[0], conf.data[0])
+    loc, conf = model(x)
+    results = multibox_encoder.decode(loc.data[0], conf.data[0], 0.45, 0.01)
 
     img = src.copy()
-    nms = multibox_encoder.non_maximum_suppression(boxes, conf, 0.45, 0.01)
-    for box, cls, conf in nms:
-        box *= img.shape[1::-1]
+    for box, label, score in results:
+        box = np.array(box)
+        box[:2] *= img.shape[1::-1]
+        box[2:] *= img.shape[1::-1]
         box = box.astype(int)
 
-        print(
-            cls + 1, conf,
-            box.left, box.top, box.right, box.bottom)
+        print(label + 1, score, *box)
 
-        if conf < 0.6:
+        if score < 0.6:
             continue
 
         cv2.rectangle(
             img,
-            (box.left, box.top), (box.right, box.bottom),
+            (box[0], box[1]), (box[2], box[3]),
             (0, 0, 255),
             3)
 
-        name = VOC.names[cls]
+        name = VOCDataset.labels[label]
         (w, h), b = cv2.getTextSize(name, cv2.FONT_HERSHEY_PLAIN, 1, 1)
         cv2.rectangle(
             img,
-            (box.left, box.top), (box.left + w, box.top + h + b),
+            (box[0], box[1]), (box[0] + w, box[1] + h + b),
             (0, 0, 255),
             -1)
         cv2.putText(
             img,
             name,
-            (box.left, box.top + h),
+            (box[0], box[1] + h),
             cv2.FONT_HERSHEY_PLAIN,
             1,
             (255, 255, 255))

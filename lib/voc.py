@@ -2,12 +2,10 @@ import cv2
 import os
 import xml.etree.ElementTree as ET
 
-from rect import Rect
 
+class VOCDataset(object):
 
-class VOC(object):
-
-    names = (
+    labels = (
         'aeroplane',
         'bicycle',
         'bird',
@@ -30,7 +28,7 @@ class VOC(object):
         'tvmonitor',
     )
 
-    def __init__(self, root, sets, difficult=True):
+    def __init__(self, root, sets):
         self.root = root
 
         self.images = list()
@@ -39,8 +37,6 @@ class VOC(object):
             for line in open(
                     os.path.join(root, 'ImageSets', 'Main', name + '.txt')):
                 self.images.append((root, line.strip()))
-
-        self.difficult = difficult
 
     def __len__(self):
         return len(self.images)
@@ -62,16 +58,12 @@ class VOC(object):
         for child in tree.getroot():
             if not child.tag == 'object':
                 continue
-
-            if not self.difficult and bool(int(child.find('difficult').text)):
-                continue
-
             bndbox = child.find('bndbox')
-            rect = Rect.LTRB(*(
-                float(bndbox.find(t).text)
-                for t in ('xmin', 'ymin', 'xmax', 'ymax')))
-            cls = self.names.index(child.find('name').text)
+            bbox = tuple(
+                float(bndbox.find(t).text) - 1
+                for t in ('xmin', 'ymin', 'xmax', 'ymax'))
+            label = self.labels.index(child.find('name').text)
 
-            annotations.append((rect, cls))
+            annotations.append((bbox, label))
 
         return annotations
