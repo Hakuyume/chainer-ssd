@@ -19,11 +19,9 @@ class Normalize(chainer.Link):
             initializer=initializers._get_initializer(initial))
 
     def __call__(self, x):
-        norm = F.sqrt(F.sum(F.square(x), axis=1) + self.eps)
-        norm = F.broadcast_to(norm[:, np.newaxis], x.shape)
+        x = F.normalize(x, eps=self.eps, axis=1)
         scale = F.broadcast_to(self.scale[:, np.newaxis, np.newaxis], x.shape)
-
-        return x * scale / norm
+        return x * scale
 
 
 class SSD300(chainer.Chain):
