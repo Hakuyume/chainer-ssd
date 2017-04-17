@@ -16,12 +16,7 @@ VOC2007 Test
     - `ManualScheduleTrigger` is required.
 - Numpy
 - OpenCV 3
-
-## Setup
-```
-$ cd chainer-ssd
-$ git submodule update --init
-```
+- Matplotlib
 
 ## Usage
 
@@ -35,7 +30,7 @@ $ tar xf models_VGGNet_VOC0712_SSD_300x300.tar.gz
 
 #### 2\. Convert weights
 ```
-$ python3 convert_caffe.py models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel ssd300.npz
+$ ./caffe2npz.py models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel VGG_VOC0712_SSD_300.npz
 ```
 
 #### 3\.a Test with VOC dataset
@@ -48,19 +43,24 @@ $ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
 
 #### 3\.b Test with an image
 ```
-$ python3 predict.py ssd300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
+$ ./demo.py VGG_VOC0712_SSD_300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
 5 0.0130746 273 86 293 167
-5 0.0113749 140 208 195 261
+5 0.0113751 140 208 195 261
 9 0.0211564 82 444 117 484
 9 0.0200858 3 27 343 492
-...
+9 0.0164014 68 446 97 486
+9 0.0158782 59 425 131 488
+9 0.0157032 128 455 187 488
+9 0.0131429 8 335 63 427
+12 0.82896 51 240 202 374
+12 0.147764 8 227 237 476
+12 0.0550958 11 1 350 498
 15 0.985803 12 5 354 492
 15 0.0196945 273 95 294 173
-15 0.013401 274 92 319 184
-18 0.0143461 11 1 350 498
-(press 'q' to exit)
+15 0.0134011 274 92 319 184
+18 0.0143462 11 1 350 498
 ```
-![result](images/result_converted.jpg)
+![result](images/demo.png)
 
 ### Training (on going)
 
