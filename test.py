@@ -14,7 +14,7 @@ from lib import SSD300
 from lib import VOCDataset
 
 
-class TestDataset(object):
+class TestDataset(chainer.dataset.DatasetMixin):
 
     def __init__(self, dataset, model):
         self.dataset = dataset
@@ -24,7 +24,7 @@ class TestDataset(object):
     def __len__(self):
         return len(self.dataset)
 
-    def __getitem__(self, i):
+    def get_example(self, i):
         name = self.dataset.name(i)
 
         image = self.dataset.image(i)
