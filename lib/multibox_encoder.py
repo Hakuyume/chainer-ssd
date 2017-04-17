@@ -65,17 +65,19 @@ class MultiBoxEncoder(object):
         boxes[:, 2:] += boxes[:, :2]
         conf = np.exp(conf)
         conf /= conf.sum(axis=1, keepdims=True)
-        conf = conf[:, 1:]
+        scores = conf[:, 1:]
 
-        for label in range(conf.shape[1]):
-            selection = np.zeros(conf.shape[0], dtype=bool)
-            for i in conf[:, label].argsort()[::-1]:
-                if conf[i, label] < conf_threshold:
-                    break
+        for label in range(scores.shape[1]):
+            mask = conf[:, label] >= conf_threshold
+            label_boxes = boxes[mask]
+            label_scores = scores[mask, label]
+
+            selection = np.zeros(len(label_scores), dtype=bool)
+            for i in label_scores.argsort()[::-1]:
                 iou = matrix_iou(
-                    boxes[np.newaxis, i],
-                    boxes[selection])
+                    label_boxes[np.newaxis, i],
+                    label_boxes[selection])
                 if (iou > nms_threshold).any():
                     continue
                 selection[i] = True
-                yield boxes[i], label, conf[i, label]
+                yield label_boxes[i], label, label_scores[i]
