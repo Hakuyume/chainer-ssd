@@ -2,6 +2,7 @@
 
 import argparse
 import cv2
+import matplotlib.pyplot as plot
 import numpy as np
 
 from chainer import serializers
@@ -37,41 +38,24 @@ if __name__ == '__main__':
     loc, conf = model(x)
     results = multibox_encoder.decode(loc.data[0], conf.data[0], 0.45, 0.01)
 
-    img = src.copy()
+    figure = plot.figure()
+    ax = figure.add_subplot(111)
+    ax.imshow(src[:, :, ::-1])
+
     for box, label, score in results:
         box = np.array(box)
-        box[:2] *= img.shape[1::-1]
-        box[2:] *= img.shape[1::-1]
+        box[:2] *= src.shape[1::-1]
+        box[2:] *= src.shape[1::-1]
         box = box.astype(int)
 
         print(label + 1, score, *box)
 
-        if score < 0.6:
-            continue
+        if score > 0.6:
+            ax.add_patch(plot.Rectangle(
+                (box[0], box[1]), box[2] - box[0], box[3] - box[1],
+                fill=False, edgecolor='red', linewidth=3))
+            ax.text(
+                box[0], box[1], VOCDataset.labels[label],
+                bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})
 
-        cv2.rectangle(
-            img,
-            (box[0], box[1]), (box[2], box[3]),
-            (0, 0, 255),
-            3)
-
-        name = VOCDataset.labels[label]
-        (w, h), b = cv2.getTextSize(name, cv2.FONT_HERSHEY_PLAIN, 1, 1)
-        cv2.rectangle(
-            img,
-            (box[0], box[1]), (box[0] + w, box[1] + h + b),
-            (0, 0, 255),
-            -1)
-        cv2.putText(
-            img,
-            name,
-            (box[0], box[1] + h),
-            cv2.FONT_HERSHEY_PLAIN,
-            1,
-            (255, 255, 255))
-
-    print('(press \'q\' to exit)')
-    while True:
-        cv2.imshow('result', img)
-        if cv2.waitKey() == ord('q'):
-            break
+    plot.show()
