@@ -68,7 +68,7 @@ if __name__ == '__main__':
         except StopIteration:
             break
 
-        x = np.stack([image for _, image, _ in batch])
+        x = model.xp.array([image for _, image, _ in batch])
         loc, conf = model(x)
         loc = chainer.cuda.to_cpu(loc.data)
         conf = chainer.cuda.to_cpu(conf.data)
