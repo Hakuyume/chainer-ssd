@@ -14,8 +14,7 @@ VOC2007 Test
 - Python 3.5+
 - [Chainer](https://github.com/pfnet/chainer) 1.23+
     - `ManualScheduleTrigger` is required.
-- Numpy 1.12+
-    - `axis` option of `numpy.count_nonzero` is required.
+- Numpy
 - OpenCV 3
 
 ## Setup
