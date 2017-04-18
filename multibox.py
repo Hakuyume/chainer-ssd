@@ -53,7 +53,7 @@ class MultiBox(chainer.Chain):
 
         loss_conf[t_conf > 0] = 0
         rank = (-loss_conf).argsort(axis=1).argsort(axis=1)
-        hard_neg = rank < (np.count_nonzero(t_conf, axis=1) * 3)[:, np.newaxis]
+        hard_neg = rank < ((t_conf > 0).sum(axis=1) * 3)[:, np.newaxis]
 
         return self.xp.array(hard_neg).flatten()
 
