@@ -68,7 +68,7 @@ class MultiBoxEncoder(object):
         scores = conf[:, 1:]
 
         for label in range(scores.shape[1]):
-            mask = conf[:, label] >= conf_threshold
+            mask = scores[:, label] >= conf_threshold
             label_boxes = boxes[mask]
             label_scores = scores[mask, label]
 

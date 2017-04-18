@@ -41,6 +41,7 @@ if __name__ == '__main__':
     ax.imshow(src[:, :, ::-1])
 
     for box, label, score in results:
+        box = box.copy()
         box[:2] *= src.shape[1::-1]
         box[2:] *= src.shape[1::-1]
         box = box.astype(int)
