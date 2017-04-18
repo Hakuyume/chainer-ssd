@@ -42,10 +42,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
     parser.add_argument('--output', default='.')
-    parser.add_argument('--test')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('model')
+    parser.add_argument('test')
     args = parser.parse_args()
 
     model = SSD300(20)
