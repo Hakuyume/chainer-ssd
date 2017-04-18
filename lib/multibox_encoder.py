@@ -67,6 +67,10 @@ class MultiBoxEncoder(object):
         conf /= conf.sum(axis=1, keepdims=True)
         scores = conf[:, 1:]
 
+        all_boxes = list()
+        all_labels = list()
+        all_scores = list()
+
         for label in range(scores.shape[1]):
             mask = scores[:, label] >= conf_threshold
             label_boxes = boxes[mask]
@@ -80,4 +84,9 @@ class MultiBoxEncoder(object):
                 if (iou > nms_threshold).any():
                     continue
                 selection[i] = True
-                yield label_boxes[i], label, label_scores[i]
+
+                all_boxes.append(label_boxes[i])
+                all_labels.append(label)
+                all_scores.append(label_scores[i])
+
+        return np.stack(all_boxes), np.stack(all_labels), np.stack(all_scores)

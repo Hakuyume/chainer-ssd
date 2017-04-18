@@ -34,14 +34,14 @@ if __name__ == '__main__':
     loc, conf = model(x)
     loc = chainer.cuda.to_cpu(loc.data)
     conf = chainer.cuda.to_cpu(conf.data)
-    results = multibox_encoder.decode(loc[0], conf[0], 0.45, 0.01)
+    boxes, labels, scores = multibox_encoder.decode(
+        loc[0], conf[0], 0.45, 0.01)
 
     figure = plot.figure()
     ax = figure.add_subplot(111)
     ax.imshow(src[:, :, ::-1])
 
-    for box, label, score in results:
-        box = box.copy()
+    for box, label, score in zip(boxes, labels, scores):
         box[:2] *= src.shape[1::-1]
         box[2:] *= src.shape[1::-1]
         box = box.astype(int)

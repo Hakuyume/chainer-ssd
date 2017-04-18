@@ -76,8 +76,9 @@ if __name__ == '__main__':
         for (name, _, size), loc, conf in zip(batch, loc, conf):
             print(name)
 
-            results = multibox_encoder.decode(loc, conf, 0.45, 0.01)
-            for box, label, score in results:
+            boxes, labels, scores = multibox_encoder.decode(
+                loc, conf, 0.45, 0.01)
+            for box, label, score in zip(boxes, labels, scores):
                 box[:2] *= size
                 box[2:] *= size
 
