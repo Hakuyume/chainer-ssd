@@ -37,7 +37,7 @@ $ ./caffe2npz.py models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_
 ```
 $ curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
 $ tar xf VOCtest_06-Nov-2007.tar
-$ python3 test.py ssd300.npz --test 2007-test [--gpu gpu]
+$ ./test.py VGG_VOC0712_SSD_300.npz 2007-test [--gpu gpu]
 (comp4_det_test_*.txt will be generated)
 ```
 
