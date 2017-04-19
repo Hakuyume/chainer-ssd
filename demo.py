@@ -50,7 +50,8 @@ if __name__ == '__main__':
                 (box[0], box[1]), box[2] - box[0], box[3] - box[1],
                 fill=False, edgecolor='red', linewidth=3))
             ax.text(
-                box[0], box[1], VOCDataset.labels[label],
+                box[0], box[1],
+                '{:s}: {:0.2f}'.format(VOCDataset.labels[label], score),
                 bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})
 
     plot.show()
