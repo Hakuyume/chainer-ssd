@@ -47,7 +47,7 @@ class MultiBoxEncoder(object):
 
         loc = np.hstack((
             ((boxes[:, :2] + boxes[:, 2:]) / 2 - self.default_boxes[:, :2]) /
-            (self.variance[0] * self.default_bboxes[:, 2:]),
+            (self.variance[0] * self.default_boxes[:, 2:]),
             np.log((boxes[:, 2:] - boxes[:, :2]) / self.default_boxes[:, 2:]) /
             self.variance[1]))
 
