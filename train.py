@@ -107,7 +107,7 @@ if __name__ == '__main__':
     iterator = chainer.iterators.SerialIterator(dataset, args.batchsize)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
-    optimizer.setup(model)
+    optimizer.setup(SSDTrainer(model))
     optimizer.add_hook(CustomHook(0.0005))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
