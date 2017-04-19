@@ -31,7 +31,7 @@ def multibox_loss(x_loc, x_conf, t_loc, t_conf, k=3):
     x_loc = F.reshape(x_loc, (-1, 4))
     t_loc = F.reshape(t_loc, (-1, 4))
     loss_loc = F.huber_loss(x_loc, t_loc, 1)
-    loss_loc *= F.flatten(pos).astype(loss_loc.dtype)
+    loss_loc *= pos.flatten().astype(loss_loc.dtype)
     loss_loc = F.sum(loss_loc) / pos.sum()
 
     loss_conf = _elementwise_softmax_cross_entropy(x_conf, t_conf)
