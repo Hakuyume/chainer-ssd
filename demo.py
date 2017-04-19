@@ -9,6 +9,7 @@ import chainer
 from chainer import serializers
 
 from lib import MultiBoxEncoder
+from lib import preproc_for_test
 from lib import SSD300
 from lib import VOCDataset
 
@@ -25,13 +26,9 @@ if __name__ == '__main__':
     multibox_encoder = MultiBoxEncoder(model)
 
     src = cv2.imread(args.image, cv2.IMREAD_COLOR)
+    image = preproc_for_test(src, model.insize, model.mean)
 
-    x = cv2.resize(src, (model.insize, model.insize)).astype(np.float32)
-    x -= model.mean
-    x = x.transpose(2, 0, 1)
-    x = x[np.newaxis]
-
-    loc, conf = model(x)
+    loc, conf = model(image[np.newaxis])
     loc = chainer.cuda.to_cpu(loc.data)
     conf = chainer.cuda.to_cpu(conf.data)
     boxes, labels, scores = multibox_encoder.decode(

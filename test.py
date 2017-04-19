@@ -1,8 +1,6 @@
 #! /usr/bin/env python3
 
 import argparse
-import cv2
-import numpy as np
 import os
 
 import chainer
@@ -10,6 +8,7 @@ from chainer import iterators
 from chainer import serializers
 
 from lib import MultiBoxEncoder
+from lib import preproc_for_test
 from lib import SSD300
 from lib import VOCDataset
 
@@ -26,15 +25,9 @@ class TestDataset(chainer.dataset.DatasetMixin):
 
     def get_example(self, i):
         name = self.dataset.name(i)
-
         image = self.dataset.image(i)
         height, width, _ = image.shape
-
-        image = cv2.resize(image, (self.insize, self.insize))
-        image = image.astype(np.float32)
-        image -= self.mean
-        image = image.transpose(2, 0, 1)
-
+        image = preproc_for_test(image, self.insize, self.mean)
         return name, image, (width, height)
 
 
