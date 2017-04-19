@@ -59,8 +59,7 @@ if __name__ == '__main__':
     files = [
         open(
             os.path.join(
-                args.output,
-                'comp4_det_test_{:s}.txt'.format(VOCDataset.labels[label])),
+                args.output, 'comp4_det_test_{:s}.txt'.format(label)),
             mode='w')
         for label in VOCDataset.labels]
 
