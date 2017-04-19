@@ -32,7 +32,7 @@ class MultiBoxEncoder(object):
     def encode(self, boxes, labels, threshold=0.5):
         if len(boxes) == 0:
             return (
-                np.empty(self.default_boxes.shape, dtype=np.float32),
+                np.zeros(self.default_boxes.shape, dtype=np.float32),
                 np.zeros(self.default_boxes.shape[:1], dtype=np.int32))
 
         iou = matrix_iou(
