@@ -34,7 +34,7 @@ class TestDataset(chainer.dataset.DatasetMixin):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
-    parser.add_argument('--output', default='.')
+    parser.add_argument('--output', default='result')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('model')
@@ -54,6 +54,15 @@ if __name__ == '__main__':
 
     iterator = iterators.SerialIterator(
         dataset, args.batchsize, repeat=False, shuffle=False)
+
+    os.makedirs(args.output, exist_ok=True)
+    files = [
+        open(
+            os.path.join(
+                args.output,
+                'comp4_det_test_{:s}.txt'.format(VOCDataset.labels[label])),
+            mode='w')
+        for label in VOCDataset.labels]
 
     while True:
         try:
@@ -75,8 +84,7 @@ if __name__ == '__main__':
                 box[:2] *= size
                 box[2:] *= size
 
-                path = os.path.join(
-                    args.output,
-                    'comp4_det_test_{:s}.txt'.format(VOCDataset.labels[label]))
-                with open(path, mode='a') as f:
-                    print(name, score, *box, file=f)
+                print(name, score, *box, file=files[label])
+
+    for f in files:
+        f.close()
