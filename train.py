@@ -8,11 +8,11 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
-import config
-from loader import SSDLoader
-from multibox import MultiBoxEncoder
-from ssd import SSD300
-from voc import VOC
+from lib import MultiBoxEncoder
+from lib import multibox_loss
+from lib import preproc_for_train
+from lib import SSD300
+from lib import VOCDataset
 
 
 class CustomHook(object):
@@ -44,6 +44,45 @@ class CustomHook(object):
                     self.kernel()(p, lr, decay, g)
 
 
+class TrainDataset(chainer.dataset.DatasetMixin):
+
+    def __init__(self, datasets, model):
+        self.datasets = datasets
+        self.insize = model.insize
+        self.mean = model.mean
+        self.encoder = MultiBoxEncoder(model)
+
+    def __len__(self):
+        return sum(map(len, self.datasets))
+
+    def get_example(self, i):
+        for dataset in self.datasets:
+            if i >= len(dataset):
+                i -= len(dataset)
+                continue
+
+            image = dataset.image(i)
+            boxes, labels = dataset.annotations(i)
+            image, boxes, labels = preproc_for_train(
+                image, boxes, labels, self.insize, self.mean)
+            loc, conf = self.encoder.encode(boxes, labels)
+            return image, loc, conf
+
+
+class SSDTrainer(chainer.Chain):
+
+    def __init__(self, model):
+        super().__init__(model=model)
+
+    def __call__(self, x, t_loc, t_conf):
+        loc, conf = self.model(x)
+        loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf)
+        loss = loss_loc + loss_conf
+        chainer.report(
+            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf},  self)
+        return loss
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
@@ -55,33 +94,23 @@ if __name__ == '__main__':
     parser.add_argument('--resume')
     args = parser.parse_args()
 
-    model = SSD300(n_classes=20, aspect_ratios=config.aspect_ratios)
+    model = SSD300(20)
     if args.init:
         serializers.load_npz(args.init, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
 
-    multibox_encoder = MultiBoxEncoder(
-        grids=model.grids,
-        steps=config.steps,
-        sizes=config.sizes,
-        aspect_ratios=model.aspect_ratios,
-        variance=config.variance)
+    dataset = TrainDataset(
+        [VOCDataset(args.root, *t.split('-')) for t in args.train], model)
 
-    train = SSDLoader(
-        VOC(args.root, [t.split('-') for t in args.train]),
-        model.insize,
-        config.mean,
-        multibox_encoder)
-
-    train_iter = chainer.iterators.SerialIterator(train, args.batchsize)
+    iterator = chainer.iterators.SerialIterator(dataset, args.batchsize)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(model)
     optimizer.add_hook(CustomHook(0.0005))
 
-    updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
+    updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1),
