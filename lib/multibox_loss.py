@@ -7,7 +7,7 @@ import chainer.functions as F
 def _elementwise_softmax_cross_entropy(x, t):
     assert x.shape[:-1] == t.shape
     p = F.reshape(
-        F.select_item(F.shape(x, (-1, x.shape[-1])), F.flatten(t)),
+        F.select_item(F.reshape(x, (-1, x.shape[-1])), F.flatten(t)),
         t.shape)
     return F.logsumexp(x, axis=-1) - p
 
