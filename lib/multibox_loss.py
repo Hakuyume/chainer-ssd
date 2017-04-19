@@ -21,7 +21,7 @@ def _mine_hard_negative(loss, pos, k):
     return xp.array(hard_neg)
 
 
-def multibox_loss(self, x_loc, x_conf, t_loc, t_conf, k=3):
+def multibox_loss(x_loc, x_conf, t_loc, t_conf, k=3):
     xp = chainer.cuda.get_array_module(x_loc.data)
 
     pos = t_conf.data > 0
