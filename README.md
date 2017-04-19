@@ -14,7 +14,6 @@ VOC2007 Test
 - Python 3.5+
 - [Chainer](https://github.com/pfnet/chainer) 1.23+
     - `ManualScheduleTrigger` is required.
-- Numpy
 - OpenCV 3
 - Matplotlib
 
@@ -62,7 +61,7 @@ $ ./demo.py VGG_VOC0712_SSD_300.npz VOCdevkit/VOC2007/JPEGImages/000001.jpg
 ```
 ![demo](images/demo.png)
 
-### Training (on going)
+### Training
 
 #### 1\. Download pre-trained VGG16 model (fc reduced) from https://gist.github.com/weiliu89/2ed6e13bfd5b57cf81d6
 ```
@@ -71,7 +70,7 @@ $ curl -LO http://cs.unc.edu/~wliu/projects/ParseNet/VGG_ILSVRC_16_layers_fc_red
 
 #### 2\. Convert weights
 ```
-$ python3 convert_caffe.py --baseonly VGG_ILSVRC_16_layers_fc_reduced.caffemodel vgg16.npz
+$ ./caffe2npz.py --base_only VGG_ILSVRC_16_layers_fc_reduced.caffemodel VGG_ILSVRC_16.npz
 ```
 
 #### 3\. Download VOC dataset
@@ -84,7 +83,7 @@ $ tar xf VOCtrainval_11-May-2012.tar
 
 #### 4\. Train
 ```
-$ python3 train.py --init vgg16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
+$ ./train.py --init VGG_ILSVRC_16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
 
 ![loss curve](images/loss_curve.png)
