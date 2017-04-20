@@ -15,7 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('output')
     parser.add_argument('--n_classes', type=int, default=20)
     parser.add_argument('--base_only', action='store_true')
-    parser.set_defaults(baseonly=False)
+    parser.set_defaults(base_only=False)
     args = parser.parse_args()
 
     model = SSD300(args.n_classes)
