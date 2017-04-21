@@ -79,7 +79,7 @@ class SSDTrainer(chainer.Chain):
         loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf)
         loss = loss_loc + loss_conf
         chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf},  self)
+            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
         return loss
 
 
