@@ -85,7 +85,7 @@ class SSDTrainer(chainer.Chain):
 
 
 def load_npz(filename, obj):
-    with np.load(args.init) as f:
+    with np.load(filename) as f:
         d = serializers.NpzDeserializer(f, strict=False)
         d.load(obj)
 
