@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import argparse
+import numpy as np
 
 import chainer
 from chainer import serializers
@@ -83,6 +84,12 @@ class SSDTrainer(chainer.Chain):
         return loss
 
 
+def load_npz(filename, obj):
+    with np.load(args.init) as f:
+        d = serializers.NpzDeserializer(f, strict=False)
+        d.load(obj)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--root', default='VOCdevkit')
@@ -96,7 +103,7 @@ if __name__ == '__main__':
 
     model = SSD300(20)
     if args.init:
-        serializers.load_npz(args.init, model)
+        load_npz(args.init, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
         model.to_gpu()
