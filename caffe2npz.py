@@ -13,5 +13,5 @@ if __name__ == '__main__':
     parser.add_argument('output')
     args = parser.parse_args()
 
-    model = load_caffe(args.caffemodel)
+    model = load_caffe(args.caffemodel, verbose=True)
     serializers.save_npz(args.output, model)
