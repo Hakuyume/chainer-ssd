@@ -1,5 +1,7 @@
 import numpy as np
+import re
 
+import chainer
 import chainer.links.caffe.caffe_function as caffe
 
 from lib.ssd import _Normalize
@@ -26,60 +28,41 @@ class _CaffeFunction(caffe.CaffeFunction):
         pass
 
 
-def load_caffe(model_path, model, base_only=False):
+def _rename_layer(name):
+    m = re.match(r'^/conv(\d+)_([123])$', name)
+    if m:
+        i, j = map(int, m.groups())
+        if i >= 6:
+            i += 2
+        return 'conv{:d}_{:d}'.format(i, j)
+
+    m = re.match(r'^/fc([67])$', name)
+    if m:
+        return 'conv{:d}'.format(int(m.group(1)))
+
+    if name == r'/conv4_3_norm':
+        return 'norm4'
+
+    m = re.match(r'^/conv4_3_norm_mbox_(loc|conf)$', name)
+    if m:
+        return '{:s}/0'.format(m.group(1))
+
+    m = re.match(r'^/fc7_mbox_(loc|conf)$', name)
+    if m:
+        return ('{:s}/1'.format(m.group(1)))
+
+    m = re.match(r'^/conv(\d+)_2_mbox_(loc|conf)$', name)
+    if m:
+        i, type_ = int(m.group(1)), m.group(2)
+        if i >= 6:
+            return '{:s}/{:d}'.format(type_, i - 4)
+
+
+def load_caffe(model_path):
     caffe_model = _CaffeFunction(model_path)
+    model = chainer.Chain()
 
-    model.conv1_1.copyparams(caffe_model.conv1_1)
-    model.conv1_2.copyparams(caffe_model.conv1_2)
+    for name, link in caffe_model.namedlinks(skipself=True):
+        model.add_link(_rename_layer(name), link.copy())
 
-    model.conv2_1.copyparams(caffe_model.conv2_1)
-    model.conv2_2.copyparams(caffe_model.conv2_2)
-
-    model.conv3_1.copyparams(caffe_model.conv3_1)
-    model.conv3_2.copyparams(caffe_model.conv3_2)
-    model.conv3_3.copyparams(caffe_model.conv3_3)
-
-    model.conv4_1.copyparams(caffe_model.conv4_1)
-    model.conv4_2.copyparams(caffe_model.conv4_2)
-    model.conv4_3.copyparams(caffe_model.conv4_3)
-
-    if not base_only:
-        model.norm4.copyparams(caffe_model.conv4_3_norm)
-
-    model.conv5_1.copyparams(caffe_model.conv5_1)
-    model.conv5_2.copyparams(caffe_model.conv5_2)
-    model.conv5_3.copyparams(caffe_model.conv5_3)
-
-    model.conv6.copyparams(caffe_model.fc6)
-    model.conv7.copyparams(caffe_model.fc7)
-
-    if not base_only:
-        model.conv8_1.copyparams(caffe_model.conv6_1)
-        model.conv8_2.copyparams(caffe_model.conv6_2)
-
-        model.conv9_1.copyparams(caffe_model.conv7_1)
-        model.conv9_2.copyparams(caffe_model.conv7_2)
-
-        model.conv10_1.copyparams(caffe_model.conv8_1)
-        model.conv10_2.copyparams(caffe_model.conv8_2)
-
-        model.conv11_1.copyparams(caffe_model.conv9_1)
-        model.conv11_2.copyparams(caffe_model.conv9_2)
-
-        model.loc[0].copyparams(caffe_model.conv4_3_norm_mbox_loc)
-        model.conf[0].copyparams(caffe_model.conv4_3_norm_mbox_conf)
-
-        model.loc[1].copyparams(caffe_model.fc7_mbox_loc)
-        model.conf[1].copyparams(caffe_model.fc7_mbox_conf)
-
-        model.loc[2].copyparams(caffe_model.conv6_2_mbox_loc)
-        model.conf[2].copyparams(caffe_model.conv6_2_mbox_conf)
-
-        model.loc[3].copyparams(caffe_model.conv7_2_mbox_loc)
-        model.conf[3].copyparams(caffe_model.conv7_2_mbox_conf)
-
-        model.loc[4].copyparams(caffe_model.conv8_2_mbox_loc)
-        model.conf[4].copyparams(caffe_model.conv8_2_mbox_conf)
-
-        model.loc[5].copyparams(caffe_model.conv9_2_mbox_loc)
-        model.conf[5].copyparams(caffe_model.conv9_2_mbox_conf)
+    return model
