@@ -5,9 +5,10 @@ This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 ## Performance
 VOC2007 Test
 
-| Original | Test only (model conversion) | Train and Test |
-|:-:|:-:|:-:|
-| 77.6 % | 77.5 % | 77.3 % |
+| Method | Original | Test only (model conversion) | Train and Test |
+|:-:|:-:|:-:|:-:|
+| SSD300 | 77.6 % | 77.5 % | 77.3 % |
+| SSD512 | 79.5 % ([3]) | 79.6 % | - |
 
 ## Requirements
 
@@ -70,7 +71,7 @@ $ curl -LO http://cs.unc.edu/~wliu/projects/ParseNet/VGG_ILSVRC_16_layers_fc_red
 
 #### 2\. Convert weights
 ```
-$ ./caffe2npz.py --base_only VGG_ILSVRC_16_layers_fc_reduced.caffemodel VGG_ILSVRC_16.npz
+$ ./caffe2npz.py VGG_ILSVRC_16_layers_fc_reduced.caffemodel VGG_ILSVRC_16_fc_reduced.npz
 ```
 
 #### 3\. Download VOC dataset
@@ -83,15 +84,15 @@ $ tar xf VOCtrainval_11-May-2012.tar
 
 #### 4\. Train
 ```
-$ ./train.py --init VGG_ILSVRC_16.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
+$ ./train.py --init VGG_ILSVRC_16_fc_reduced.npz --train 2007-trainval --train 2012-trainval [--gpu gpu]
 ```
 
 ![loss curve](images/loss_curve.png)
 
 ## ToDo
-- SSD512
 - Multi GPUs support
 
 ## References
-- Wei Liu, et al. "SSD: Single shot multibox detector." ECCV2016.
-- [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
+- [1]: Wei Liu, et al. "SSD: Single shot multibox detector" ECCV 2016.
+- [2]: [Original implementation](https://github.com/weiliu89/caffe/tree/ssd)
+- [3]: Cheng-Yang Fu, et al. ["DSSD : Deconvolutional Single Shot Detector"](https://arxiv.org/abs/1701.06659) arXiv 2017.
