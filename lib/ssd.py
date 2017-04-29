@@ -171,3 +171,46 @@ class SSD300(_SSDVGG16):
             h = F.relu(self['conv{:d}_2'.format(i)](h))
             ys.append(h)
         return ys
+
+
+class SSD512(_SSDVGG16):
+
+    insize = 512
+    grids = (64, 32, 16, 8, 4, 2, 1)
+    aspect_ratios = ((2,), (2, 3), (2, 3), (2, 3), (2, 3), (2,), (2, ))
+    steps = [s / 512 for s in (8, 16, 32, 64, 128, 256, 512)]
+    sizes = [s / 512 for s in
+             (35.84, 76.8, 153.6, 230.4, 307.2, 384.0, 460.8, 537.6)]
+
+    def __init__(self, n_classes):
+        super().__init__(n_classes)
+
+        self.add_link(
+            'conv8_1', L.Convolution2D(None, 256, 1, **self.conv_init))
+        self.add_link(
+            'conv8_2',
+            L.Convolution2D(None, 512, 3, stride=2, pad=1, **self.conv_init))
+
+        for i in range(9, 11 + 1):
+            self.add_link(
+                'conv{:d}_1'.format(i),
+                L.Convolution2D(None, 128, 1, **self.conv_init))
+            self.add_link(
+                'conv{:d}_2'.format(i),
+                L.Convolution2D(
+                    None, 256, 3, stride=2, pad=1, **self.conv_init))
+
+        self.add_link(
+            'conv12_1', L.Convolution2D(None, 128, 1, **self.conv_init))
+        self.add_link(
+            'conv12_2',
+            L.Convolution2D(None, 256, 4,  pad=1, **self.conv_init))
+
+    def _features(self, x):
+        ys = super()._features(x)
+        for i in range(8, 12 + 1):
+            h = ys[-1]
+            h = F.relu(self['conv{:d}_1'.format(i)](h))
+            h = F.relu(self['conv{:d}_2'.format(i)](h))
+            ys.append(h)
+        return ys
