@@ -3,7 +3,7 @@
 This is an implementation of SSD (Single Shot MultiBox Detector) using Chainer
 
 ## Performance
-VOC2007 Test
+Pascal VOC2007 Test
 
 | Method | Original | Test only (model conversion) | Train and Test |
 |:-:|:-:|:-:|:-:|
@@ -33,7 +33,7 @@ $ tar xf models_VGGNet_VOC0712_SSD_300x300.tar.gz
 $ ./caffe2npz.py models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel VGG_VOC0712_SSD_300.npz
 ```
 
-#### 3\.a Test with VOC dataset
+#### 3\.a Test with Pascal VOC dataset
 ```
 $ curl -LO http://host.robots.ox.ac.uk/pascal/VOC/voc2007/VOCtest_06-Nov-2007.tar
 $ tar xf VOCtest_06-Nov-2007.tar
