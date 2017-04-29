@@ -10,6 +10,7 @@ from chainer import serializers
 from lib import MultiBoxEncoder
 from lib import preproc_for_test
 from lib import SSD300
+from lib import SSD512
 from lib import VOCDataset
 
 
@@ -37,11 +38,15 @@ if __name__ == '__main__':
     parser.add_argument('--output', default='result')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--arch', choices=('300', '512'), default='300')
     parser.add_argument('model')
     parser.add_argument('test')
     args = parser.parse_args()
 
-    model = SSD300(20)
+    if args.arch == '300':
+        model = SSD300(20)
+    elif args.arch == '512':
+        model = SSD512(20)
     serializers.load_npz(args.model, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
