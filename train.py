@@ -103,6 +103,9 @@ if __name__ == '__main__':
 
     model = SSD300(20)
     if args.init:
+        # To skip unsaved parameters, initialize model by default initializers.
+        # This line will be removed.
+        model(np.empty((1, 3, model.insize, model.insize), dtype=np.float32))
         load_npz(args.init, model)
     if args.gpu >= 0:
         chainer.cuda.get_device(args.gpu).use()
