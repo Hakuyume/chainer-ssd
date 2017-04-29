@@ -114,7 +114,8 @@ if __name__ == '__main__':
     dataset = TrainDataset(
         [VOCDataset(args.root, *t.split('-')) for t in args.train], model)
 
-    iterator = chainer.iterators.SerialIterator(dataset, args.batchsize)
+    iterator = chainer.iterators.MultiprocessIterator(
+        dataset, args.batchsize, n_processes=2)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(SSDTrainer(model))
