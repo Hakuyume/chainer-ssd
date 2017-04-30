@@ -28,15 +28,15 @@ def multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
         if xp.logical_not(pos).all():
             return 0, 0
 
-    x_loc = F.reshape(x_loc, (-1, 4))
-    t_loc = F.reshape(t_loc, (-1, 4))
-    loss_loc = F.huber_loss(x_loc, t_loc, 1)
-    loss_loc *= pos.flatten().astype(loss_loc.dtype)
-    loss_loc = F.sum(loss_loc) / pos.sum()
+        x_loc = F.reshape(x_loc, (-1, 4))
+        t_loc = F.reshape(t_loc, (-1, 4))
+        loss_loc = F.huber_loss(x_loc, t_loc, 1)
+        loss_loc *= pos.flatten().astype(loss_loc.dtype)
+        loss_loc = F.sum(loss_loc) / pos.sum()
 
-    loss_conf = _elementwise_softmax_cross_entropy(x_conf, t_conf)
-    hard_neg = _mine_hard_negative(loss_conf.data, pos, k)
-    loss_conf *= xp.logical_or(pos, hard_neg).astype(loss_conf.dtype)
-    loss_conf = F.sum(loss_conf) / pos.sum()
+        loss_conf = _elementwise_softmax_cross_entropy(x_conf, t_conf)
+        hard_neg = _mine_hard_negative(loss_conf.data, pos, k)
+        loss_conf *= xp.logical_or(pos, hard_neg).astype(loss_conf.dtype)
+        loss_conf = F.sum(loss_conf) / pos.sum()
 
-    return loss_loc, loss_conf
+        return loss_loc, loss_conf
