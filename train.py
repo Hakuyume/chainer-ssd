@@ -9,40 +9,12 @@ from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
+from lib import CustomWeightDecay
 from lib import MultiBoxEncoder
 from lib import multibox_loss
 from lib import preproc_for_train
 from lib import SSD300
 from lib import VOCDataset
-
-
-class CustomHook(object):
-
-    name = 'CustomHook'
-
-    def __init__(self, decay):
-        self.decay = decay
-
-    def kernel(self):
-        return chainer.cuda.elementwise(
-            'T p, T lr, T decay', 'T g',
-            'g = lr * g + decay * p',
-            'custom_hook')
-
-    def __call__(self, opt):
-        for param in opt.target.params():
-            if param.name == 'b':
-                lr = 2
-                decay = 0
-            else:
-                lr = 1
-                decay = self.decay
-            p, g = param.data, param.grad
-            with chainer.cuda.get_device(p) as dev:
-                if int(dev) == -1:
-                    g = lr * g + decay * p
-                else:
-                    self.kernel()(p, lr, decay, g)
 
 
 class TrainDataset(chainer.dataset.DatasetMixin):
@@ -119,7 +91,7 @@ if __name__ == '__main__':
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(SSDTrainer(model))
-    optimizer.add_hook(CustomHook(0.0005))
+    optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
