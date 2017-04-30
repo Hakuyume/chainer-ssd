@@ -11,7 +11,7 @@ from chainer.training import triggers
 
 from lib import CustomWeightDecay
 from lib import MultiBoxEncoder
-from lib import multibox_loss
+from lib import MultiBoxLossWrapper
 from lib import preproc_for_train
 from lib import SSD300
 from lib import VOCDataset
@@ -40,20 +40,6 @@ class TrainDataset(chainer.dataset.DatasetMixin):
                 image, boxes, labels, self.insize, self.mean)
             loc, conf = self.encoder.encode(boxes, labels)
             return image, loc, conf
-
-
-class SSDTrainer(chainer.Chain):
-
-    def __init__(self, model):
-        super().__init__(model=model)
-
-    def __call__(self, x, t_loc, t_conf):
-        loc, conf = self.model(x)
-        loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf)
-        loss = loss_loc + loss_conf
-        chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
-        return loss
 
 
 def load_npz(filename, obj):
@@ -90,7 +76,7 @@ if __name__ == '__main__':
         dataset, args.batchsize, n_processes=2)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
-    optimizer.setup(SSDTrainer(model))
+    optimizer.setup(MultiBoxLossWrapper(model))
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
