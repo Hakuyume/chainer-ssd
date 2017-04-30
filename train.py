@@ -4,12 +4,12 @@ import argparse
 import numpy as np
 
 import chainer
-import chainer.functions as F
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
 from chainer.training import triggers
 
+from lib import CustomUpdater
 from lib import CustomWeightDecay
 from lib import MultiBoxEncoder
 from lib import multibox_loss
@@ -20,28 +20,27 @@ from lib import VOCDataset
 
 class TrainWrapper(chainer.Chain):
 
-    def __init__(self, model, k=3):
+    def __init__(self, model):
         super().__init__(model=model)
+
+    def __call__(self, x, t_loc, t_conf):
+        loc, conf = self.model(x)
+        return loc, conf, t_loc, t_conf
+
+
+class LossFunc(object):
+
+    def __init__(self, k=3):
         self.k = k
 
-    def __call__(self, x, t_loc, t_conf, total_pos):
-        loc, conf = self.model(x)
-        loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf, self.k)
-        loss_loc = F.sum(loss_loc)
-        loss_conf = F.sum(loss_conf)
+    def __call__(self, x_loc, x_conf, t_loc, t_conf):
+        loss_loc, loss_conf = multibox_loss(
+            t_loc, t_conf, t_loc, t_conf, self.k)
         loss = loss_loc + loss_conf
+        chainer.report(
+            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
 
-        with chainer.cuda.get_device(t_conf.data):
-            pos = (t_conf.data > 0).sum()
-            chainer.report(
-                {
-                    'loss': loss / pos,
-                    'loc': loss_loc / pos,
-                    'conf': loss_conf / pos},
-                self)
-
-        total_pos = total_pos[0]
-        return loss / total_pos
+        return loss
 
 
 class TrainDataset(chainer.dataset.DatasetMixin):
@@ -67,16 +66,6 @@ class TrainDataset(chainer.dataset.DatasetMixin):
                 image, boxes, labels, self.insize, self.mean)
             loc, conf = self.encoder.encode(boxes, labels)
             return image, loc, conf
-
-
-class CustomIterator(chainer.iterators.MultiprocessIterator):
-
-    def __next__(self):
-        batch = super().__next__()
-        pos = np.float32(sum((conf > 0).sum() for _, _, conf in batch))
-        return [(image, loc, conf, pos) for image, loc, conf in batch]
-
-    next = __next__
 
 
 # To skip unsaved parameters, use strict option.
@@ -110,20 +99,22 @@ if __name__ == '__main__':
     dataset = TrainDataset(
         [VOCDataset(args.root, *t.split('-')) for t in args.train], model)
 
-    iterator = CustomIterator(dataset, args.batchsize, n_processes=2)
+    iterator = chainer.iterators.MultiprocessIterator(
+        dataset, args.batchsize, n_processes=2)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(TrainWrapper(model))
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     if len(args.gpu) > 0:
-        updater = training.ParallelUpdater(
-            iterator, optimizer,
-            devices={
-                ('main' if i == 0 else i): dev
-                for i, dev in enumerate(args.gpu)})
+        devices = {
+            ('main' if i == 0 else i): dev
+            for i, dev in enumerate(args.gpu)}
     else:
-        updater = training.StandardUpdater(iterator, optimizer)
+        devices = {'main': -1}
+    updater = CustomUpdater(
+        iterator, optimizer,
+        devices=devices, loss_func=LossFunc())
     trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=0.001),
