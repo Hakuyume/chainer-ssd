@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 
 import chainer
+import chainer.functions as F
 from chainer import serializers
 from chainer import training
 from chainer.training import extensions
@@ -23,13 +24,15 @@ class TrainWrapper(chainer.Chain):
         super().__init__(model=model)
         self.k = k
 
-    def __call__(self, x, t_loc, t_conf):
+    def __call__(self, x, t_loc, t_conf, n_pos):
         loc, conf = self.model(x)
         loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf, self.k)
+        loss_loc = F.sum(loss_loc)
+        loss_conf = F.sum(loss_conf)
         loss = loss_loc + loss_conf
         chainer.report(
             {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
-        return loss
+        return loss / n_pos[0]
 
 
 class TrainDataset(chainer.dataset.DatasetMixin):
@@ -57,6 +60,14 @@ class TrainDataset(chainer.dataset.DatasetMixin):
             return image, loc, conf
 
 
+class CustomIterator(chainer.iterators.MultiprocessIterator):
+
+    def __next__(self):
+        batch = super().__next__()
+        n_pos = sum((conf > 0).sum() for _, _, conf in batch)
+        return [(image, loc, conf, n_pos) for image, loc, conf in batch]
+
+
 # To skip unsaved parameters, use strict option.
 # This function will be removed.
 def load_npz(filename, obj):
@@ -70,7 +81,7 @@ if __name__ == '__main__':
     parser.add_argument('--root', default='VOCdevkit')
     parser.add_argument('--train', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
-    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--gpu', type=int, nargs='+')
     parser.add_argument('--output', default='result')
     parser.add_argument('--init')
     parser.add_argument('--resume')
@@ -82,21 +93,26 @@ if __name__ == '__main__':
         # This line will be removed.
         model(np.empty((1, 3, model.insize, model.insize), dtype=np.float32))
         load_npz(args.init, model)
-    if args.gpu >= 0:
-        chainer.cuda.get_device(args.gpu).use()
-        model.to_gpu()
+    if len(args.gpu) > 0:
+        chainer.cuda.get_device(args.gpu[0]).use()
 
     dataset = TrainDataset(
         [VOCDataset(args.root, *t.split('-')) for t in args.train], model)
 
-    iterator = chainer.iterators.MultiprocessIterator(
-        dataset, args.batchsize, n_processes=2)
+    iterator = CustomIterator(dataset, args.batchsize, n_processes=2)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
     optimizer.setup(TrainWrapper(model))
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
-    updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
+    if len(args.gpu) > 0:
+        updater = training.ParallelUpdater(
+            iterator, optimizer,
+            devices={
+                ('main' if i == 0 else i): dev
+                for i, dev in enumerate(args.gpu)})
+    else:
+        updater = training.StandardUpdater(iterator, optimizer)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=0.001),
