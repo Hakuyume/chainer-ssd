@@ -42,6 +42,8 @@ class TrainDataset(chainer.dataset.DatasetMixin):
             return image, loc, conf
 
 
+# To skip unsaved parameters, use strict option.
+# This function will be removed.
 def load_npz(filename, obj):
     with np.load(filename) as f:
         d = serializers.NpzDeserializer(f, strict=False)
