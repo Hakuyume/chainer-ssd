@@ -38,6 +38,9 @@ class CustomUpdater(ParallelUpdater):
             for i, out_var in enumerate(out_vars):
                 hs[i].append(F.copy(out_var, self._devices['main']))
 
+        for model in self._models.values():
+            model.cleargrads()
+
         loss = self.loss_func(*(F.concat(h, axis=0) for h in hs))
         loss.backward()
 
