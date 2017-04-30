@@ -67,6 +67,8 @@ class CustomIterator(chainer.iterators.MultiprocessIterator):
         n_pos = sum((conf > 0).sum() for _, _, conf in batch)
         return [(image, loc, conf, n_pos) for image, loc, conf in batch]
 
+    next = __next__
+
 
 # To skip unsaved parameters, use strict option.
 # This function will be removed.
