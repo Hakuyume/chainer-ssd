@@ -35,7 +35,7 @@ class LossFunc(object):
 
     def __call__(self, x_loc, x_conf, t_loc, t_conf):
         loss_loc, loss_conf = multibox_loss(
-            t_loc, t_conf, t_loc, t_conf, self.k)
+            x_loc, x_conf, t_loc, t_conf, self.k)
         loss = loss_loc + loss_conf
         chainer.report(
             {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
