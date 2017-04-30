@@ -64,7 +64,7 @@ class CustomIterator(chainer.iterators.MultiprocessIterator):
 
     def __next__(self):
         batch = super().__next__()
-        n_pos = sum((conf > 0).sum() for _, _, conf in batch)
+        n_pos = np.float32(sum((conf > 0).sum() for _, _, conf in batch))
         return [(image, loc, conf, n_pos) for image, loc, conf in batch]
 
     next = __next__
