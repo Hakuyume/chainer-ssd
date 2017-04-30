@@ -24,15 +24,24 @@ class TrainWrapper(chainer.Chain):
         super().__init__(model=model)
         self.k = k
 
-    def __call__(self, x, t_loc, t_conf, n_pos):
+    def __call__(self, x, t_loc, t_conf, total_pos):
         loc, conf = self.model(x)
         loss_loc, loss_conf = multibox_loss(loc, conf, t_loc, t_conf, self.k)
         loss_loc = F.sum(loss_loc)
         loss_conf = F.sum(loss_conf)
         loss = loss_loc + loss_conf
-        chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
-        return loss / n_pos[0]
+
+        with chainer.cuda.get_device(t_conf.data):
+            pos = (t_conf.data > 0).sum()
+            chainer.report(
+                {
+                    'loss': loss / pos,
+                    'loc': loss_loc / pos,
+                    'conf': loss_conf / pos},
+                self)
+
+        total_pos = total_pos[0]
+        return loss / total_pos
 
 
 class TrainDataset(chainer.dataset.DatasetMixin):
@@ -64,8 +73,8 @@ class CustomIterator(chainer.iterators.MultiprocessIterator):
 
     def __next__(self):
         batch = super().__next__()
-        n_pos = np.float32(sum((conf > 0).sum() for _, _, conf in batch))
-        return [(image, loc, conf, n_pos) for image, loc, conf in batch]
+        pos = np.float32(sum((conf > 0).sum() for _, _, conf in batch))
+        return [(image, loc, conf, pos) for image, loc, conf in batch]
 
     next = __next__
 
