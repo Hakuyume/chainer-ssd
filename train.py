@@ -30,7 +30,8 @@ class TrainWrapper(chainer.Chain):
 
 class LossFunc(object):
 
-    def __init__(self, k=3):
+    def __init__(self, observer, k=3):
+        self.observer = observer
         self.k = k
 
     def __call__(self, x_loc, x_conf, t_loc, t_conf):
@@ -38,7 +39,7 @@ class LossFunc(object):
             x_loc, x_conf, t_loc, t_conf, self.k)
         loss = loss_loc + loss_conf
         chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
+            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self.observer)
 
         return loss
 
@@ -103,7 +104,8 @@ if __name__ == '__main__':
         dataset, args.batchsize, n_processes=2)
 
     optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
-    optimizer.setup(TrainWrapper(model))
+    wrapper = TrainWrapper(model)
+    optimizer.setup(wrapper)
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     if len(args.gpu) > 0:
@@ -114,7 +116,7 @@ if __name__ == '__main__':
         devices = {'main': -1}
     updater = CustomUpdater(
         iterator, optimizer,
-        devices=devices, loss_func=LossFunc())
+        devices=devices, loss_func=LossFunc(observer=wrapper))
     trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=0.001),
