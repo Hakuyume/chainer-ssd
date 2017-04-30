@@ -56,7 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--train', action='append')
     parser.add_argument('--batchsize', type=int, default=32)
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--out', default='result')
+    parser.add_argument('--output', default='result')
     parser.add_argument('--init')
     parser.add_argument('--resume')
     args = parser.parse_args()
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
-    trainer = training.Trainer(updater, (120000, 'iteration'), args.out)
+    trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
         extensions.ExponentialShift('lr', 0.1, init=0.001),
         trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'),
