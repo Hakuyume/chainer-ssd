@@ -21,7 +21,7 @@ def _mine_hard_negative(loss, pos, k):
     return xp.array(hard_neg)
 
 
-def _multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
+def multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
     xp = chainer.cuda.get_array_module(x_loc.data)
 
     pos = t_conf.data > 0
@@ -40,18 +40,3 @@ def _multibox_loss(x_loc, x_conf, t_loc, t_conf, k):
     loss_conf = F.sum(loss_conf) / pos.sum()
 
     return loss_loc, loss_conf
-
-
-class MultiBoxLossWrapper(chainer.Chain):
-
-    def __init__(self, model, k=3):
-        super().__init__(model=model)
-        self.k = k
-
-    def __call__(self, x, t_loc, t_conf):
-        loc, conf = self.model(x)
-        loss_loc, loss_conf = _multibox_loss(loc, conf, t_loc, t_conf, self.k)
-        loss = loss_loc + loss_conf
-        chainer.report(
-            {'loss': loss, 'loc': loss_loc, 'conf': loss_conf}, self)
-        return loss
