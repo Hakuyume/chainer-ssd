@@ -8,6 +8,9 @@ from lib import matrix_iou
 def _crop(image, boxes, labels):
     height, width, _ = image.shape
 
+    if len(boxes) == 0:
+        return image, boxes, labels
+
     while True:
         mode = random.choice((
             None,
