@@ -99,9 +99,8 @@ if __name__ == '__main__':
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.0001),
-        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'),
-        invoke_before_training=False)
+        extensions.ExponentialShift('lr', 0.1),
+        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
 
     snapshot_interval = 1000, 'iteration'
     log_interval = 10, 'iteration'
