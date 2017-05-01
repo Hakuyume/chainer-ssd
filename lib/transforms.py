@@ -131,6 +131,9 @@ def preproc_for_test(image, insize, mean):
 
 
 def preproc_for_train(image, boxes, labels, insize, mean):
+    if len(boxes) == 0:
+        boxes = np.empty((0, 4))
+
     image, boxes, labels = _crop(image, boxes, labels)
     image = _distort(image)
     image, boxes = _expand(image, boxes, mean)
