@@ -91,12 +91,11 @@ def _distort(image):
     return image
 
 
-def _expand(image, boxes, fill):
+def _expand(image, boxes, ratio, fill):
     if random.randrange(2):
         return image, boxes
 
     height, width, depth = image.shape
-    ratio = random.uniform(1, 4)
     left = random.randint(0, int(width * ratio) - width)
     top = random.randint(0, int(height * ratio) - height)
 
@@ -136,7 +135,9 @@ def preproc_for_train(image, boxes, labels, insize, mean):
 
     image, boxes, labels = _crop(image, boxes, labels)
     image = _distort(image)
-    image, boxes = _expand(image, boxes, mean)
+    if random.randrange(2):
+        ratio = random.uniform(1, 4)
+        image, boxes = _expand(image, boxes, ratio, mean)
     image, boxes = _mirror(image, boxes)
 
     height, width, _ = image.shape
