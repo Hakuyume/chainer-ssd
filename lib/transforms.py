@@ -103,7 +103,7 @@ def _expand(image, boxes, fill):
     expand_image = np.empty(
         (int(height * ratio), int(width * ratio), depth),
         dtype=image.dtype)
-    expand_image[:, :] = fill
+    expand_image[:] = fill
     expand_image[top:top + height, left:left + width] = image
     image = expand_image
 
