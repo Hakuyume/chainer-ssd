@@ -64,4 +64,11 @@ class VOCDataset(object):
             boxes.append(box)
             labels.append(label)
 
-        return np.array(boxes), np.array(labels)
+        if len(boxes) > 0:
+            boxes = np.array(boxes)
+        else:
+            boxes = np.empty((0, 4))
+
+        labels = np.array(labels)
+
+        return boxes, labels
