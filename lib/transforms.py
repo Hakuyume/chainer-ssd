@@ -178,6 +178,7 @@ def preproc_for_train(image, boxes, labels, insize, mean):
         image, boxes = _mirror(image, boxes)
 
     image = image.astype(np.float32) - mean
+    image = image.transpose(2, 0, 1)
     boxes = boxes / insize
 
     return image, boxes, labels
