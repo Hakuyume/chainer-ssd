@@ -151,7 +151,7 @@ def _resize(image, boxes, insize):
     inter = random.choice(inters)
 
     height, width, _ = image.shape
-    image = cv2.resize(image, (insize, insize), interplation=inter)
+    image = cv2.resize(image, (insize, insize), interpolation=inter)
     boxes = boxes.copy()
     boxes[:, 0::2] *= insize / width
     boxes[:, 1::2] *= insize / height
