@@ -13,8 +13,8 @@ Pascal VOC2007 Test
 ## Requirements
 
 - Python 3.5+
-- [Chainer](https://github.com/pfnet/chainer) 1.23+
-    - `ManualScheduleTrigger` is required.
+- [Chainer](https://github.com/pfnet/chainer) 1.24+
+    - `ExponentialShift` had a resuming issue in older version.
 - OpenCV 3
 - Matplotlib
 

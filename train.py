@@ -92,16 +92,15 @@ if __name__ == '__main__':
     iterator = chainer.iterators.MultiprocessIterator(
         dataset, args.batchsize, n_processes=2)
 
-    optimizer = chainer.optimizers.MomentumSGD(lr=0.001)
+    optimizer = chainer.optimizers.MomentumSGD()
     optimizer.setup(TrainWrapper(model))
     optimizer.add_hook(CustomWeightDecay(0.0005, b={'lr': 2, 'decay': 0}))
 
     updater = training.StandardUpdater(iterator, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, (120000, 'iteration'), args.output)
     trainer.extend(
-        extensions.ExponentialShift('lr', 0.1, init=0.0001),
-        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'),
-        invoke_before_training=False)
+        extensions.ExponentialShift('lr', 0.1, init=0.001),
+        trigger=triggers.ManualScheduleTrigger([80000, 100000], 'iteration'))
 
     snapshot_interval = 1000, 'iteration'
     log_interval = 10, 'iteration'
