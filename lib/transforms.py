@@ -160,7 +160,8 @@ def _resize(image, boxes, insize):
 
 def preproc_for_test(image, insize, mean):
     image = cv2.resize(image, (insize, insize))
-    image = image.astype(np.float32) - mean
+    image = image.astype(np.float32)
+    image -= mean
     return image.transpose(2, 0, 1)
 
 
@@ -177,7 +178,8 @@ def preproc_for_train(image, boxes, labels, insize, mean):
     if random.randrange(2):
         image, boxes = _mirror(image, boxes)
 
-    image = image.astype(np.float32) - mean
+    image = image.astype(np.float32)
+    image -= mean
     image = image.transpose(2, 0, 1)
     boxes = boxes / insize
 
