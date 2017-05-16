@@ -76,7 +76,7 @@ def _distort(image):
 
     def contrast(image):
         if random.randrange(2):
-            return convert(image, alpha=random.uniform(-0.5, 1.5))
+            return convert(image, alpha=random.uniform(0.5, 1.5))
         else:
             return image
 
