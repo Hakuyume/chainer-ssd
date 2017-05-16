@@ -94,7 +94,6 @@ def _distort(image):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
             image[:, :, 0] = (
                 image[:, :, 0].astype(int) + random.randint(-18, 18)) % 180
-            image = convert(image, alpha=random.uniform(0.5, 1.5))
             return cv2.cvtColor(image, cv2.COLOR_HSV2BGR)
         else:
             return image
