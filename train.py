@@ -10,8 +10,8 @@ from chainer.training import extensions
 from chainer.training import triggers
 
 from lib import CustomWeightDecay
-from lib import MultiBoxEncoder
 from lib import multibox_loss
+from lib import MultiBoxEncoder
 from lib import preproc_for_train
 from lib import SSD300
 from lib import VOCDataset
