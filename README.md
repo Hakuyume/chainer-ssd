@@ -1,4 +1,4 @@
-***This repository is not maintained and some bugs are found in training code. Please use [ChainerCV](https://github.com/chainer/chainrcv)***
+***This repository is not maintained and some bugs are found in training code. Please use [ChainerCV](https://github.com/chainer/chainercv/).***
 
 # SSD: Single Shot MultiBox Detector
 
